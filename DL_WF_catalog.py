@@ -92,28 +92,31 @@ for l in LOC:
         driver.find_element_by_css_selector('div.ex-Toast-message span strong a').click()
         time.sleep(10)
         
+    # Swith Window Handle
     window_after = driver.window_handles[-1]
     driver.switch_to_window(window_after)
+
     for i in range(5):
-        # Swith Window Handle
-        
         # Sorting by Created Date
         driver.find_element_by_css_selector('.js-autogen-column:nth-child(4) .sorting').click()
         time.sleep(30)
         # Confirm Download Button is ready
         if driver.find_element_by_css_selector('tbody .table_row .js-status').text == 'Complete':
             driver.find_elements_by_css_selector('.js-document-download')[0].click()
-            break
+            time.sleep(60)
+            file_checker = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name]
+            # Confirm Download file is ready
+            if len(file_checker) != 0:
+                break
+            else:
+                driver.refresh()
+                time.sleep(30)
         else:
             driver.refresh()
             time.sleep(30)
     
-#    driver.find_element_by_partial_link_text('Download Excel').click()
-#    driver.find_element_by_xpath('//*[@id="view_1"]/div/div[1]/div/div/div[2]/div/a[2]/div/span[2]').click()
-    time.sleep(60)
-    
     ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
-    if l =="US":
+    if l=="US":
         shutil.move(Download_dir + ori_file, final_Inv_dir + US_total_name)
     elif l=="CAN":
         shutil.move(Download_dir + ori_file, CAN_final_Inv_dir + CAN_total_name)
@@ -125,7 +128,3 @@ driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier
 time.sleep(20)
 
 driver.quit() 
-
-
-
-
