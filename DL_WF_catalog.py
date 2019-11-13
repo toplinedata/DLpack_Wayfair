@@ -42,8 +42,9 @@ driver = webdriver.Chrome(driver_path,chrome_options=options)
 # Wayfair supplier website
 WF_Extrant = 'https://partners.wayfair.com'
 Catalog_page = 'https://partners.wayfair.com/v/catalog/catalog_management/index'
-driver.get(WF_Extrant)
+download_page = 'https://partners.wayfair.com/v/supplier/download_center/management/app'
 
+driver.get(WF_Extrant)
 LoadingChecker = (By.XPATH, '//*[@id="login"]/button')
 WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
 # Input username and password and login
@@ -79,17 +80,16 @@ for l in LOC:
     driver.get(Catalog_page)
     time.sleep(60)
    
-    # Download Catalog data
     try:
         driver.find_element_by_xpath('/html/body/div[2]/div[4]/div/div/div/div[2]/div/div[5]/button').click()
-        time.sleep(3)
-        driver.find_element_by_css_selector('div.ex-Toast-message span strong a').click()
+        time.sleep(10)
+        driver.get(download_page)
         time.sleep(10)
     except:
         # Goto Download Center
         driver.find_element_by_css_selector('body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > div.ex-Grid-item.u-size3of12.ex-Grid-item--row > div > div:nth-child(6) > button').click()
-        time.sleep(3)
-        driver.find_element_by_css_selector('div.ex-Toast-message span strong a').click()
+        time.sleep(10)
+        driver.get(download_page)
         time.sleep(10)
         
     # Swith Window Handle
