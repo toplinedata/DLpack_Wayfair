@@ -5,12 +5,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
+from pathlib import Path
 import shutil
 import os
 
 # Today's date
 date_label = time.strftime('%Y%m%d')
-
 
 try:
     #local test Directory
@@ -21,8 +21,7 @@ try:
     driver_path = 'C:\\Users\\User\\Anaconda3\\chrome\\chromedriver.exe'
     os.chdir(work_dir)
 except:
-    # 0047Directory
-    # Directory
+    # 0047 Directory
     work_dir = 'N:\\E Commerce\\Public Share\\Automate_Script\\DLpack_Wayfair\\'
     Download_dir = 'N:\\E Commerce\\Public Share\\Dot Com - Wayfair\\CG daily Inventory\\temp_DL_file\\'
     final_Inv_dir = 'N:\\E Commerce\\Public Share\\Dot Com - Wayfair\\CG daily Inventory\\'
@@ -63,28 +62,39 @@ for l in LOC:
     s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
     s1.select_by_visible_text(LOC[l])
     driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+
     # File name
-    #total_name = l + 'inventory Total' + date_label + '.csv'
-    #warehouse_name = l + 'inventory WH' + date_label + '.csv'
     total_name = 'inventory WH' + date_label + '.csv'
     
     time.sleep(10)
     
     # Turn to inventory page
     driver.get(Inventory_page)
-    time.sleep(30)
+    time.sleep(10)
+    
     #download file
-    try:
-        driver.find_element_by_partial_link_text("Download CSV").click()
-    except:
-        driver.find_element_by_xpath("/html/body/div[2]/div[4]/div/div/div[2]/div/main/button").click()
-    time.sleep(180)
+    if l == "US":
+        LoadingChecker = (By.XPATH, '/html/body/div[2]/div[4]/div/div/div/div/main/div[3]/div[2]/div/button')
+        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+        driver.find_element_by_xpath('/html/body/div[2]/div[4]/div/div/div/div/main/div[3]/div[2]/div/button').click()
+    elif l == "CAN":
+        LoadingChecker = (By.XPATH, '/html/body/div[2]/div[4]/div/div/div/div/main/div[1]/div[2]/div/button')
+        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+        driver.find_element_by_xpath('/html/body/div[2]/div[4]/div/div/div/div/main/div[1]/div[2]/div/button').click()
+ 
+    time.sleep(90)
     ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
-    #shutil.move(Download_dir + ori_file, final_Inv_dir + total_name)
-    if l =="US":
-        shutil.move(Download_dir + ori_file, final_Inv_dir + total_name)
-    elif l=="CAN":
-        shutil.move(Download_dir + ori_file, CAN_final_Inv_dir + total_name)
+
+    if l == "US":
+        if not Path(final_Inv_dir + total_name).exists():
+            shutil.move(Download_dir + ori_file, final_Inv_dir + total_name)
+        else:
+            os.remove(Download_dir + ori_file)
+    elif l == "CAN":
+        if not Path(CAN_final_Inv_dir + total_name).exists():
+            shutil.move(Download_dir + ori_file, CAN_final_Inv_dir + total_name)
+        else:
+            os.remove(Download_dir + ori_file)
     time.sleep(10)
 
 
@@ -95,7 +105,4 @@ driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier
 time.sleep(20)
     
 driver.quit() 
-
-
-
 
