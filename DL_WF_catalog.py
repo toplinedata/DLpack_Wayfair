@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import TimeoutException
 import shutil
 import os
 
@@ -60,16 +61,22 @@ for l in LOC:
     driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
     
     # Click dropdown menus and download excel file
-    try:
-        s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-        s1.select_by_visible_text(LOC[l])    
-        driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-    except:
-        driver.refresh()
-        time.sleep(30)
-        s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-        s1.select_by_visible_text(LOC[l])    
-        driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+    s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
+    s1.select_by_visible_text(LOC[l])
+    LoadingChecker = (By.NAME, 'changeSupplier')
+    WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+    driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+    
+#    try:
+#        s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
+#        s1.select_by_visible_text(LOC[l])  
+#        driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+#    except:
+#        driver.refresh()
+#        time.sleep(30)
+#        s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
+#        s1.select_by_visible_text(LOC[l])    
+#        driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
     
     # File name
     US_total_name = date_label + ' 15379_full_catalog_export.csv'#US
@@ -81,12 +88,16 @@ for l in LOC:
     time.sleep(60)
    
     try:
+        LoadingChecker = (By.XPATH, '/html/body/div[2]/div[4]/div/div/div/div[2]/div/div[5]/button')
+        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
         driver.find_element_by_xpath('/html/body/div[2]/div[4]/div/div/div/div[2]/div/div[5]/button').click()
         time.sleep(10)
         driver.get(download_page)
         time.sleep(10)
     except:
         # Goto Download Center
+        LoadingChecker = (By.CSS_SELECTOR, 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > div.ex-Grid-item.u-size3of12.ex-Grid-item--row > div > div:nth-child(6) > button')
+        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
         driver.find_element_by_css_selector('body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > div.ex-Grid-item.u-size3of12.ex-Grid-item--row > div > div:nth-child(6) > button').click()
         time.sleep(10)
         driver.get(download_page)
@@ -98,6 +109,8 @@ for l in LOC:
 
     for i in range(5):
         # Sorting by Created Date
+        LoadingChecker = (By.CSS_SELECTOR, '.js-autogen-column:nth-child(4) .sorting')
+        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
         driver.find_element_by_css_selector('.js-autogen-column:nth-child(4) .sorting').click()
         time.sleep(30)
         # Confirm Download Button is ready
@@ -124,7 +137,8 @@ for l in LOC:
 #GO back to US
 s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
 s1.select_by_visible_text(LOC['US'])
+LoadingChecker = (By.ID, 'switchsupplier')
+WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
 driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
 time.sleep(20)
-
 driver.quit() 
