@@ -41,7 +41,6 @@ driver = webdriver.Chrome(driver_path,chrome_options=options)
 
 # Wayfair supplier website
 WF_Extrant = 'https://partners.wayfair.com'
-inbound_page = 'https://partners.wayfair.com/v/wfs/orders/inbound/index'
 driver.get(WF_Extrant)
 
 LoadingChecker = (By.XPATH, '//*[@id="login"]/button')
@@ -52,62 +51,67 @@ driver.find_element_by_id('password_field').send_keys(password)
 driver.find_element_by_xpath('//*[@id="login"]/button').click()
 time.sleep(10)
 
+try:
+    wfe_modal = 'body > div.wfe_modal.modal_transition_bottom.modal_transition_finish > div > span'
+    LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
+    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+    driver.find_element_by_css_selector(wfe_modal).click()
+except:
+    pass
+
 # Click select box to choose US or CAN
 LOC = {'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
-l="US"
 for l in LOC:
     driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
+    
+    inbound_page = 'https://partners.wayfair.com/v/wfs/orders/inbound/index'
+    driver.get(inbound_page)
     
     # Click dropdown menus and download excel file
     try:
         s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
         s1.select_by_visible_text(LOC[l])    
         driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+        time.sleep(10)
+        # Download CSV
+        LoadingChecker = (By.XPATH, '/html/body/div[2]/div[4]/div/div/div[2]/div/main/div[2]/div[2]/div/div/p/button')
+        WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
+        driver.find_element_by_xpath('/html/body/div[2]/div[4]/div/div/div[2]/div/main/div[2]/div[2]/div/div/p/button').click()
+        time.sleep(120)
+        ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
     except:
         driver.refresh()
         time.sleep(30)
         s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
         s1.select_by_visible_text(LOC[l])    
         driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-    
-    # File name'
+        time.sleep(10)
+        # Download CSV
+        LoadingChecker = (By.XPATH, '/html/body/div[2]/div[4]/div/div/div[2]/div/main/div[2]/div[2]/div/div/p/button')
+        WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
+        driver.find_element_by_xpath('/html/body/div[2]/div[4]/div/div/div[2]/div/main/div[2]/div[2]/div/div/p/button').click()
+        time.sleep(120)
+        ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
+        
+    # File name
     total_name = 'inbound_order' + date_label + '.csv' 
-    time.sleep(5)
-    
-    # Turn to Catalog page
-    driver.get(inbound_page)
-    time.sleep(60)
-   
-    try:#US
-        LoadingChecker = (By.XPATH, '/html/body/div[2]/div[4]/div/div[3]/p/input')
-        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-    except:  #CAN
-        LoadingChecker = (By.XPATH, '/html/body/div[2]/div[4]/div/div[3]/p/input')
-        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
- 
-    #download file
-    try:
-        driver.find_element_by_xpath("/html/body/div[2]/div[4]/div/div[3]/p/input").click()
-    except:
-        driver.find_element_by_xpath("/html/body/div[2]/div[4]/div/div[3]/p/input").click()
-    time.sleep(180)
-    ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
-    #shutil.move(Download_dir + ori_file, final_Inv_dir + total_name)
     if l =="US":
         shutil.move(Download_dir + ori_file, final_Inv_dir + total_name)
     elif l=="CAN":
         shutil.move(Download_dir + ori_file, CAN_final_Inv_dir + total_name)
-    time.sleep(10)
-    
 
 #GO back to US
-s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-s1.select_by_visible_text(LOC['US'])
-driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-time.sleep(20)
+try:
+    s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
+    s1.select_by_visible_text(LOC['US'])
+    driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+    time.sleep(20)
+except:
+    driver.refresh()
+    time.sleep(30)
+    s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
+    s1.select_by_visible_text(LOC['US'])
+    driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+    time.sleep(20)
 
 driver.quit() 
-
-
-
-
