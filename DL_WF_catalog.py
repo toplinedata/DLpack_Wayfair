@@ -42,8 +42,6 @@ driver = webdriver.Chrome(driver_path,chrome_options=options)
 
 # Wayfair supplier website
 WF_Extrant = 'https://partners.wayfair.com'
-Catalog_page = 'https://partners.wayfair.com/v/catalog/catalog_management/index'
-download_page = 'https://partners.wayfair.com/v/supplier/download_center/management/app'
 
 driver.get(WF_Extrant)
 LoadingChecker = (By.XPATH, '//*[@id="login"]/button')
@@ -54,6 +52,15 @@ driver.find_element_by_id('password_field').send_keys(password)
 driver.find_element_by_xpath('//*[@id="login"]/button').click()
 time.sleep(10)
 
+# if wfe_modal windows pop out
+try:
+    wfe_modal = 'body > div.wfe_modal.modal_transition_bottom.modal_transition_finish > div > span'
+    LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
+    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+    driver.find_element_by_css_selector(wfe_modal).click()
+except:
+    pass
+
 # Click select box to choose US or CAN
 LOC = {'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
 
@@ -61,48 +68,50 @@ for l in LOC:
     driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
     
     # Click dropdown menus and download excel file
-    s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-    s1.select_by_visible_text(LOC[l])
-    LoadingChecker = (By.NAME, 'changeSupplier')
-    WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-    driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-    
-#    try:
-#        s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-#        s1.select_by_visible_text(LOC[l])  
-#        driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-#    except:
-#        driver.refresh()
-#        time.sleep(30)
-#        s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-#        s1.select_by_visible_text(LOC[l])    
-#        driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+    try:
+        s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
+        s1.select_by_visible_text(LOC[l])
+        LoadingChecker = (By.NAME, 'changeSupplier')
+        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+        driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+    except:
+        driver.refresh()
+        time.sleep(30)
+        s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
+        s1.select_by_visible_text(LOC[l])    
+        LoadingChecker = (By.NAME, 'changeSupplier')
+        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+        driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
     
     # File name
     US_total_name = date_label + ' 15379_full_catalog_export.csv'#US
     CAN_total_name = date_label + ' 41910_full_catalog_export.csv'#CAN    
+    time.sleep(30)
+    
+    # Turn to Catalog page & Download My Catalog
+    Catalog_page = 'https://partners.wayfair.com/v/catalog/catalog_management/index'
+    try:
+        driver.get(Catalog_page)
+        time.sleep(30)
+        
+        LoadingChecker = (By.CSS_SELECTOR, 'button.ex-Button.ex-Button--text')
+        WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
+        driver.find_element_by_css_selector('button.ex-Button.ex-Button--text').click()
+        time.sleep(5)
+    except:
+        driver.refresh()
+        time.sleep(30)
+        
+        LoadingChecker = (By.CSS_SELECTOR, 'button.ex-Button.ex-Button--text')
+        WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
+        driver.find_element_by_css_selector('button.ex-Button.ex-Button--text').click()
+        time.sleep(5)
+    
+    # Goto Download Center    
+    download_page = 'https://partners.wayfair.com/v/supplier/download_center/management/app'
+    driver.get(download_page)
     time.sleep(10)
     
-    # Turn to Catalog page
-    driver.get(Catalog_page)
-    time.sleep(60)
-   
-    try:
-        LoadingChecker = (By.XPATH, '/html/body/div[2]/div[4]/div/div/div/div[2]/div/div[5]/button')
-        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-        driver.find_element_by_xpath('/html/body/div[2]/div[4]/div/div/div/div[2]/div/div[5]/button').click()
-        time.sleep(10)
-        driver.get(download_page)
-        time.sleep(10)
-    except:
-        # Goto Download Center
-        LoadingChecker = (By.CSS_SELECTOR, 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > div.ex-Grid-item.u-size3of12.ex-Grid-item--row > div > div:nth-child(6) > button')
-        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-        driver.find_element_by_css_selector('body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > div.ex-Grid-item.u-size3of12.ex-Grid-item--row > div > div:nth-child(6) > button').click()
-        time.sleep(10)
-        driver.get(download_page)
-        time.sleep(10)
-        
     # Swith Window Handle
     window_after = driver.window_handles[-1]
     driver.switch_to_window(window_after)
@@ -117,6 +126,7 @@ for l in LOC:
         if driver.find_element_by_css_selector('tbody .table_row .js-status').text == 'Complete':
             driver.find_elements_by_css_selector('.js-document-download')[0].click()
             time.sleep(60)
+            
             file_checker = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name]
             # Confirm Download file is ready
             if len(file_checker) != 0:
