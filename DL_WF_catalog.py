@@ -100,7 +100,7 @@ for l in LOC:
         time.sleep(5)
     except:
         driver.refresh()
-        time.sleep(30)
+        time.sleep(60)
         
         LoadingChecker = (By.CSS_SELECTOR, 'button.ex-Button.ex-Button--text')
         WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
@@ -111,16 +111,23 @@ for l in LOC:
     download_page = 'https://partners.wayfair.com/v/supplier/download_center/management/app'
     driver.get(download_page)
     time.sleep(10)
-    
     # Swith Window Handle
     window_after = driver.window_handles[-1]
     driver.switch_to_window(window_after)
 
     for i in range(5):
-        # Sorting by Created Date
-        LoadingChecker = (By.CSS_SELECTOR, '.js-autogen-column:nth-child(4) .sorting')
-        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-        driver.find_element_by_css_selector('.js-autogen-column:nth-child(4) .sorting').click()
+        try:
+            # Sorting by Created Date
+            LoadingChecker = (By.CSS_SELECTOR, '.js-autogen-column:nth-child(4) .sorting')
+            WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_css_selector('.js-autogen-column:nth-child(4) .sorting').click()
+        except:
+            driver.refresh()
+            # Sorting by Created Date
+            LoadingChecker = (By.CSS_SELECTOR, '.js-autogen-column:nth-child(4) .sorting')
+            WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_css_selector('.js-autogen-column:nth-child(4) .sorting').click()
+
         time.sleep(30)
         # Confirm Download Button is ready
         if driver.find_element_by_css_selector('tbody .table_row .js-status').text == 'Complete':
