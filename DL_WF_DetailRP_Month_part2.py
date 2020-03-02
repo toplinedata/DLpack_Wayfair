@@ -61,6 +61,14 @@ driver.find_element_by_id('password_field').send_keys(password)
 driver.find_element_by_xpath('//*[@id="login"]/button').click()
 time.sleep(5)
 
+try:
+    wfe_modal = 'body > div.wfe_modal.modal_transition_bottom.modal_transition_finish > div > span'
+    LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
+    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+    driver.find_element_by_css_selector(wfe_modal).click()
+except:
+    pass
+
 # switch to US
 LOC ={'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
 driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
