@@ -81,12 +81,30 @@ time.sleep(20)
 driver.get(Download_page)
 time.sleep(20)
 
-# Sort download event by date
-driver.find_element_by_xpath('//*[@id="app"]/div[2]/div/div[1]/table/thead/tr/th[4]').click()
-time.sleep(5)
-# Press Export button
-driver.find_element_by_xpath('//*[@id="app"]/div[2]/div/div[1]/table/tbody/tr[1]/td[6]/div/button').click()
-time.sleep(20)
+try:
+    # Sort download event by date
+    LoadingChecker = (By.XPATH, '//*[@id="app"]/div[2]/div/div[1]/table/thead/tr/th[4]')
+    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+    driver.find_element_by_xpath( '//*[@id="app"]/div[2]/div/div[1]/table/thead/tr/th[4]').click()
+    time.sleep(5)
+    # Press Export button
+    LoadingChecker = (By.XPATH, '//*[@id="app"]/div[2]/div/div[1]/table/tbody/tr[1]/td[6]/div/button')
+    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+    driver.find_element_by_xpath( '//*[@id="app"]/div[2]/div/div[1]/table/tbody/tr[1]/td[6]/div/button').click()
+    time.sleep(20)
+except:
+    driver.refresh()
+    time.sleep(20)
+    # Sort download event by date
+    LoadingChecker = (By.XPATH, '//*[@id="app"]/div[2]/div/div[1]/table/thead/tr/th[4]')
+    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+    driver.find_element_by_xpath( '//*[@id="app"]/div[2]/div/div[1]/table/thead/tr/th[4]').click()
+    time.sleep(5)
+    # Press Export button
+    LoadingChecker = (By.XPATH, '//*[@id="app"]/div[2]/div/div[1]/table/tbody/tr[1]/td[6]/div/button')
+    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+    driver.find_element_by_xpath( '//*[@id="app"]/div[2]/div/div[1]/table/tbody/tr[1]/td[6]/div/button').click()
+    time.sleep(20)
 
 driver.quit()
 ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
