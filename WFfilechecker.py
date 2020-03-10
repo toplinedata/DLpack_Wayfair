@@ -26,8 +26,7 @@ try:    #local
     #   DL_WF_pricingupdate.py
     final_Inv_dir_pricingupdate = 'C:\\Users\\User\\Desktop\\0047Automate_Script\\DLpack_Wayfair\\'
     os.chdir(script_dir)
-    
-except: #0047
+except:    #0047
     #set up download script folder path
     script_dir = 'C:\\Users\\raymond.hung\\Documents\\Automate_Script\\DLpack_Wayfair\\'
     
@@ -43,22 +42,38 @@ except: #0047
     os.chdir(script_dir)
     
 # Check today's download file for WF daily download script
-file_list=list(set(os.listdir(final_Inv_dir_catalog)+os.listdir(CAN_final_Inv_dir_catalog)   \
-         +os.listdir(final_Inv_dir_dailyInv)+os.listdir(CAN_final_Inv_dir_dailyInv) \
-         +os.listdir(final_Inv_dir_pricingupdate)))
-
 for i in range(3):
     count = 0
-    for file in file_list:
+    file_list1=list(os.listdir(final_Inv_dir_catalog)+os.listdir(CAN_final_Inv_dir_catalog)   \
+                    +os.listdir(final_Inv_dir_dailyInv)+os.listdir(CAN_final_Inv_dir_dailyInv))
+    for file in file_list1:
         if date_label1+' 15379_full_catalog_export' in file:
             count+=1
+            print(count, file)
         elif date_label1+' 41910_full_catalog_export' in file:
             count+=1
+            print(count, file)
         elif 'inventory WH'+date_label2 in file:
             count+=1
-        elif 'Topline Furniture Warehouse Corp._'+date_label3 in file:
-            count+=1
-    if count < 5:
+            print(count, file)
+    if count < 4:
         os.system("python "+script_dir+"DL_WF_catalog.py")
         os.system("python "+script_dir+"DL_WF_dailyInv.py")
+    else:
+        break
+
+
+for i in range(3):
+    file_list2=list(set(os.listdir(final_Inv_dir_pricingupdate)))
+    for file in file_list2:
+        if  'Topline Furniture Warehouse Corp._'+date_label3 in file:
+            count+=1
+            print(count, file)
+    if count != 6:
+        for file in file_list2:
+            if  'Topline Furniture Warehouse Corp._'+date_label3 in file:
+                os.remove(final_Inv_dir_pricingupdate+file)
         os.system("python "+script_dir+"WFPricingUpdates.py")
+    else:
+        print("Done.")
+        break
