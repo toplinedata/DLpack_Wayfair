@@ -52,7 +52,7 @@ driver.find_element_by_id('password_field').send_keys(password)
 driver.find_element_by_xpath('//*[@id="login"]/button').click()
 time.sleep(10)
 
-# if wfe_modal windows pop out
+# skip Wayfair system info.
 try:
     wfe_modal = 'body > div.wfe_modal.modal_transition_bottom.modal_transition_finish > div > span'
     LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
@@ -90,23 +90,20 @@ for l in LOC:
     
     # Turn to Catalog page & Download My Catalog
     Catalog_page = 'https://partners.wayfair.com/v/catalog/catalog_management/index'
-    try:
-        driver.get(Catalog_page)
-        time.sleep(30)
-        
-        LoadingChecker = (By.CSS_SELECTOR, 'button.ex-Button.ex-Button--text')
-        WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
-        driver.find_element_by_css_selector('button.ex-Button.ex-Button--text').click()
-        time.sleep(5)
-    except:
-        driver.refresh()
-        time.sleep(60)
-        
-        LoadingChecker = (By.CSS_SELECTOR, 'button.ex-Button.ex-Button--text')
-        WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
-        driver.find_element_by_css_selector('button.ex-Button.ex-Button--text').click()
-        time.sleep(5)
+    driver.get(Catalog_page)
+    time.sleep(30)
     
+    for i in range(3):
+        try:
+            LoadingChecker = (By.CSS_SELECTOR, 'button.ex-Button.ex-Button--text')
+            WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_css_selector('button.ex-Button.ex-Button--text').click()
+            time.sleep(5)
+            break
+        except:
+            driver.refresh()
+            time.sleep(60)
+        
     # Goto Download Center    
     download_page = 'https://partners.wayfair.com/v/supplier/download_center/management/app'
     driver.get(download_page)
@@ -115,18 +112,16 @@ for l in LOC:
     window_after = driver.window_handles[-1]
     driver.switch_to_window(window_after)
 
-    for i in range(5):
-        try:
-            # Sorting by Created Date
-            LoadingChecker = (By.CSS_SELECTOR, '.js-autogen-column:nth-child(4) .sorting')
-            WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-            driver.find_element_by_css_selector('.js-autogen-column:nth-child(4) .sorting').click()
-        except:
-            driver.refresh()
-            # Sorting by Created Date
-            LoadingChecker = (By.CSS_SELECTOR, '.js-autogen-column:nth-child(4) .sorting')
-            WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-            driver.find_element_by_css_selector('.js-autogen-column:nth-child(4) .sorting').click()
+    for i in range(3):
+        for j in range(3):
+            try:
+                # Sorting by Created Date
+                LoadingChecker = (By.CSS_SELECTOR, '.js-autogen-column:nth-child(4) .sorting')
+                WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+                driver.find_element_by_css_selector('.js-autogen-column:nth-child(4) .sorting').click()
+                break
+            except:
+                driver.refresh()
 
         time.sleep(30)
         # Confirm Download Button is ready
@@ -152,10 +147,21 @@ for l in LOC:
         shutil.move(Download_dir + ori_file, CAN_final_Inv_dir + CAN_total_name)
 
 #GO back to US
-s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-s1.select_by_visible_text(LOC['US'])
-LoadingChecker = (By.ID, 'switchsupplier')
-WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-time.sleep(20)
-driver.quit() 
+# try:
+#     s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
+#     s1.select_by_visible_text(LOC['US'])
+#     LoadingChecker = (By.ID, 'switchsupplier')
+#     WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+#     driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+#     time.sleep(20)
+# except:
+#     driver.refresh()
+#     time.sleep(60)
+#     s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
+#     s1.select_by_visible_text(LOC['US'])
+#     LoadingChecker = (By.ID, 'switchsupplier')
+#     WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+#     driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+#     time.sleep(20)
+
+driver.quit()
