@@ -44,7 +44,6 @@ driver = webdriver.Chrome(driver_path,chrome_options=options)
 
 # Wayfair supplier website
 WF_Extrant = 'https://partners.wayfair.com'
-Inventory_page = 'https://partners.wayfair.com/v/wfs/products/product/index'
 driver.get(WF_Extrant)
 
 LoadingChecker = (By.XPATH, '//*[@id="login"]/button')
@@ -55,35 +54,58 @@ driver.find_element_by_id('password_field').send_keys(password)
 driver.find_element_by_xpath('//*[@id="login"]/button').click()
 time.sleep(10)
 
+# skip Wayfair system info.
+try:
+    wfe_modal = 'body > div.wfe_modal.modal_transition_bottom.modal_transition_finish > div > span'
+    LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
+    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+    driver.find_element_by_css_selector(wfe_modal).click()
+except:
+    pass
+
 # Click select box to choose US or CAN
 LOC ={'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
 for l in LOC:
-    driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
-    s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-    s1.select_by_visible_text(LOC[l])
-    driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-
+    for i in range(3):
+        try:
+            driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
+            s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
+            s1.select_by_visible_text(LOC[l])
+            LoadingChecker = (By.NAME, 'changeSupplier')
+            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+            break
+        except:
+            driver.refresh()
+            time.sleep(30)
+    
+    time.sleep(10)
+    
     # File name
     total_name = 'inventory WH' + date_label + '.csv'
     
-    time.sleep(10)
-    
-    # Turn to inventory page
-    driver.get(Inventory_page)
-    time.sleep(10)
-    
-    #download file
-    if l == "US":
-        LoadingChecker = (By.XPATH, '/html/body/div[2]/div[4]/div/div/div/div/main/div[3]/div[2]/div/button')
-        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-        driver.find_element_by_xpath('/html/body/div[2]/div[4]/div/div/div/div/main/div[3]/div[2]/div/button').click()
-    elif l == "CAN":
-        LoadingChecker = (By.XPATH, '/html/body/div[2]/div[4]/div/div/div/div/main/div[1]/div[2]/div/button')
-        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-        driver.find_element_by_xpath('/html/body/div[2]/div[4]/div/div/div/div/main/div[1]/div[2]/div/button').click()
- 
-    time.sleep(90)
-    ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
+    # Turn to inventory page & download file
+    Inventory_page = 'https://partners.wayfair.com/v/wfs/products/product/index'
+
+    for i in range(3):
+        try:
+            if l == "US":
+                driver.get(Inventory_page)
+                LoadingChecker = (By.XPATH, '/html/body/div[2]/div[4]/div/div/div/div/main/div[3]/div[2]/div/button')
+                WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
+                driver.find_element_by_xpath('/html/body/div[2]/div[4]/div/div/div/div/main/div[3]/div[2]/div/button').click()
+            elif l == "CAN":
+                LoadingChecker = (By.XPATH, '/html/body/div[2]/div[4]/div/div/div/div/main/div[1]/div[2]/div/button')
+                WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
+                driver.find_element_by_xpath('/html/body/div[2]/div[4]/div/div/div/div/main/div[1]/div[2]/div/button').click()
+
+            time.sleep(90)
+            ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
+            break
+
+        except:
+            driver.refresh()
+            time.sleep(30)
 
     if l == "US":
         if not Path(final_Inv_dir + total_name).exists():
@@ -97,12 +119,21 @@ for l in LOC:
             os.remove(Download_dir + ori_file)
     time.sleep(10)
 
-
 #GO back to US
-s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-s1.select_by_visible_text(LOC['US'])
-driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-time.sleep(20)
-    
-driver.quit() 
+# try:
+#     s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
+#     s1.select_by_visible_text(LOC['US'])
+#     WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+#     driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+#     time.sleep(20)
+# except:
+#     driver.refresh()
+#     time.sleep(60)
+#     s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
+#     s1.select_by_visible_text(LOC['US'])
+#     LoadingChecker = (By.ID, 'switchsupplier')
+#     WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+#     driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+#     time.sleep(20)
 
+driver.quit() 
