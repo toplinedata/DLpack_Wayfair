@@ -49,6 +49,7 @@ insert_pwd = driver.find_element_by_id('password_field').send_keys(WF_Password)
 driver.find_element_by_xpath('//*[@id="login"]/button').click()
 time.sleep(10)
 
+# skip Wayfair system info.
 try:
     wfe_modal = 'body > div.wfe_modal.modal_transition_bottom.modal_transition_finish > div > span'
     LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
@@ -62,60 +63,54 @@ except:
 LOC ={'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
 driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
 for l in LOC:
-    try:
-        s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-        s1.select_by_visible_text(LOC[l])
-        driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-    except:
-        driver.refresh()
-        time.sleep(60)
-        s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-        s1.select_by_visible_text(LOC[l])
-        driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+    for i in range(3):
+        try:
+            s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
+            s1.select_by_visible_text(LOC[l])
+            LoadingChecker = (By.NAME, 'changeSupplier')
+            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+            break
+        except:
+            driver.refresh()
+            time.sleep(30)
     
     time.sleep(10)
     price_download="https://partners.wayfair.com/v/supplier/pricing/app/index"
     driver.get(price_download)
     
-    try:
-#    Click "Search" Button
-        LoadingChecker = (By.CSS_SELECTOR, ".u-size1of12 .ex-Button--primary")
-        WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
-        driver.find_element_by_css_selector(".u-size1of12 .ex-Button--primary").click()
-        time.sleep(10)
-        
-#    Click "Export" Button
-        LoadingChecker = (By.CSS_SELECTOR, ".ex-Grid-item--row > .ex-Button--secondary")
-        WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
-        driver.find_element_by_css_selector(".ex-Grid-item--row > .ex-Button--secondary").click()
-        time.sleep(60)
-    except:
-        driver.refresh()
-    
-#    Click "Search" Button
-        LoadingChecker = (By.CSS_SELECTOR, ".u-size1of12 .ex-Button--primary")
-        WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
-        driver.find_element_by_css_selector(".u-size1of12 .ex-Button--primary").click()
-        time.sleep(10)
-        
-#    Click "Export" Button
-        LoadingChecker = (By.CSS_SELECTOR, ".ex-Grid-item--row > .ex-Button--secondary")
-        WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
-        driver.find_element_by_css_selector(".ex-Grid-item--row > .ex-Button--secondary").click()
-        time.sleep(60)
+    for i in range(3):
+        try:
+    #    Click "Search" Button
+            LoadingChecker = (By.CSS_SELECTOR, ".u-size1of12 .ex-Button--primary")
+            WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_css_selector(".u-size1of12 .ex-Button--primary").click()
+            time.sleep(10)
+            
+    #    Click "Export" Button
+            LoadingChecker = (By.CSS_SELECTOR, ".ex-Grid-item--row > .ex-Button--secondary")
+            WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_css_selector(".ex-Grid-item--row > .ex-Button--secondary").click()
+            time.sleep(60)
+            break
+        except:
+            driver.refresh()
 
-#   GO back to US
-try:
-    s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-    s1.select_by_visible_text(LOC['US'])
-    driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-    time.sleep(20)
-except:
-    driver.refresh()
-    time.sleep(60)
-    s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-    s1.select_by_visible_text(LOC['US'])
-    driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-    time.sleep(20)
+# #   GO back to US
+# try:
+#     s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
+#     s1.select_by_visible_text(LOC['US'])
+#     WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+#     driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+#     time.sleep(20)
+# except:
+#     driver.refresh()
+#     time.sleep(60)
+#     s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
+#     s1.select_by_visible_text(LOC['US'])
+#     LoadingChecker = (By.ID, 'switchsupplier')
+#     WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+#     driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+#     time.sleep(20)
 
-driver.quit()
+driver.quit() 
