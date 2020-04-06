@@ -66,19 +66,15 @@ except:
 # Click select box to choose US or CAN
 LOC ={'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
 for l in LOC:
-    for i in range(3):
-        try:
-            driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
-            s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-            s1.select_by_visible_text(LOC[l])
-            LoadingChecker = (By.NAME, 'changeSupplier')
-            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-            driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+    # Click dropdown menus and download excel file
+    css='body > div.wrapper > div:nth-child(1) > header > div > div > div.Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.Header-information > div > span'
+    LoadingChecker = (By.CSS_SELECTOR, css)
+    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+    driver.find_element_by_css_selector(css).click()
+    for i in range(1,3):
+        if driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').text == LOC[l]:
+            driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').click()
             break
-        except:
-            driver.refresh()
-            time.sleep(30)
-    
     time.sleep(10)
     
     # File name
@@ -86,19 +82,14 @@ for l in LOC:
     
     # Turn to inventory page & download file
     Inventory_page = 'https://partners.wayfair.com/v/wfs/products/product/index'
+    driver.get(Inventory_page)
 
     for i in range(3):
         try:
-            if l == "US":
-                driver.get(Inventory_page)
-                LoadingChecker = (By.XPATH, '/html/body/div[2]/div[4]/div/div/div/div/main/div[3]/div[2]/div/button')
-                WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
-                driver.find_element_by_xpath('/html/body/div[2]/div[4]/div/div/div/div/main/div[3]/div[2]/div/button').click()
-            elif l == "CAN":
-                LoadingChecker = (By.XPATH, '/html/body/div[2]/div[4]/div/div/div/div/main/div[1]/div[2]/div/button')
-                WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
-                driver.find_element_by_xpath('/html/body/div[2]/div[4]/div/div/div/div/main/div[1]/div[2]/div/button').click()
-
+            css = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div.CastleGatePageContainer > div > main > div.ex-Grid.ex-Grid--withGutter.ex-Grid--row > div.ex-Grid-item.u-size3of12.ex-Grid-item--row > div > button'
+            LoadingChecker = (By.CSS_SELECTOR, css)
+            WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_css_selector(css).click()
             time.sleep(90)
             ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
             break

@@ -68,20 +68,14 @@ for l in LOC:
     driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
     
     # Click dropdown menus and download excel file
-    try:
-        s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-        s1.select_by_visible_text(LOC[l])
-        LoadingChecker = (By.NAME, 'changeSupplier')
-        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-        driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-    except:
-        driver.refresh()
-        time.sleep(30)
-        s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-        s1.select_by_visible_text(LOC[l])    
-        LoadingChecker = (By.NAME, 'changeSupplier')
-        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-        driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+    css='body > div.wrapper > div:nth-child(1) > header > div > div > div.Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.Header-information > div > span'
+    LoadingChecker = (By.CSS_SELECTOR, css)
+    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+    driver.find_element_by_css_selector(css).click()
+    for i in range(1,3):
+        if driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').text == LOC[l]:
+            driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').click()
+            break
     
     # File name
     US_total_name = date_label + ' 15379_full_catalog_export.csv'#US
@@ -89,8 +83,8 @@ for l in LOC:
     time.sleep(30)
     
     # Turn to Catalog page & Download My Catalog
-    Catalog_page = 'https://partners.wayfair.com/v/catalog/catalog_management/index'
-    driver.get(Catalog_page)
+    css = 'body > div.wrapper > div:nth-child(1) > header > div > div > div.Nav > nav > a:nth-child(6) > span.Nav-topNavItem.hasChildren'
+    driver.find_element_by_css_selector(css).click()
     time.sleep(30)
     
     for i in range(3):

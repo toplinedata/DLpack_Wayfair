@@ -63,17 +63,14 @@ except:
 LOC ={'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
 driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
 for l in LOC:
-    for i in range(3):
-        try:
-            s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-            s1.select_by_visible_text(LOC[l])
-            LoadingChecker = (By.NAME, 'changeSupplier')
-            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-            driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+    css='body > div.wrapper > div:nth-child(1) > header > div > div > div.Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.Header-information > div > span'
+    LoadingChecker = (By.CSS_SELECTOR, css)
+    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+    driver.find_element_by_css_selector(css).click()
+    for i in range(1,3):
+        if driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').text == LOC[l]:
+            driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').click()
             break
-        except:
-            driver.refresh()
-            time.sleep(30)
     
     time.sleep(10)
     price_download="https://partners.wayfair.com/v/supplier/pricing/app/index"
