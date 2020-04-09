@@ -4,10 +4,12 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
+from datetime import datetime
 from pathlib import Path
 import shutil
 import os
+
+print(datetime.today().strftime("%Y%m%d"))
 
 # Today's date
 date_label = time.strftime('%Y%m%d')
@@ -52,7 +54,6 @@ WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
 driver.find_element_by_id('js-username').send_keys(username)
 driver.find_element_by_id('password_field').send_keys(password)
 driver.find_element_by_xpath('//*[@id="login"]/button').click()
-time.sleep(10)
 
 # skip Wayfair system info.
 try:
@@ -63,11 +64,15 @@ try:
 except:
     pass
 
-# Click select box to choose US or CAN
+# Turn to inventory page & download file
+Inventory_page = 'https://partners.wayfair.com/v/wfs/products/product/index'
+driver.get(Inventory_page)
+
 LOC ={'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
 for l in LOC:
-    # Click dropdown menus and download excel file
-    css='body > div.wrapper > div:nth-child(1) > header > div > div > div.Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.Header-information > div > span'
+    # Click select box to choose US or CAN
+    driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
+    css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span'
     LoadingChecker = (By.CSS_SELECTOR, css)
     WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
     driver.find_element_by_css_selector(css).click()
@@ -77,13 +82,10 @@ for l in LOC:
             break
     time.sleep(10)
     
-    # File name
+    # Set File name
     total_name = 'inventory WH' + date_label + '.csv'
     
-    # Turn to inventory page & download file
-    Inventory_page = 'https://partners.wayfair.com/v/wfs/products/product/index'
-    driver.get(Inventory_page)
-
+    # Click dropdown menus and download excel file
     for i in range(3):
         try:
             css = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div.CastleGatePageContainer > div > main > div.ex-Grid.ex-Grid--withGutter.ex-Grid--row > div.ex-Grid-item.u-size3of12.ex-Grid-item--row > div > button'

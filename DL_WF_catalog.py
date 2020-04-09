@@ -4,10 +4,11 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
-from selenium.common.exceptions import TimeoutException
+from datetime import datetime
 import shutil
 import os
+
+print(datetime.today().strftime("%Y%m%d"))
 
 # Today's date
 date_label = time.strftime('%Y.%m.%d')
@@ -42,15 +43,14 @@ driver = webdriver.Chrome(driver_path,chrome_options=options)
 
 # Wayfair supplier website
 WF_Extrant = 'https://partners.wayfair.com'
-
 driver.get(WF_Extrant)
+
 LoadingChecker = (By.XPATH, '//*[@id="login"]/button')
 WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
 # Input username and password and login
 driver.find_element_by_id('js-username').send_keys(username)
 driver.find_element_by_id('password_field').send_keys(password)
 driver.find_element_by_xpath('//*[@id="login"]/button').click()
-time.sleep(10)
 
 # skip Wayfair system info.
 try:
@@ -61,14 +61,16 @@ try:
 except:
     pass
 
-# Click select box to choose US or CAN
 LOC = {'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
-
 for l in LOC:
+    # Turn to Catalog page & Download My Catalog
+    Catalog_Download = 'https://partners.wayfair.com//v/catalog/catalog_management/index'
+    driver.get(Catalog_Download)
+    time.sleep(30)
+
+    # Click select box to choose US or CAN
     driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
-    
-    # Click dropdown menus and download excel file
-    css='body > div.wrapper > div:nth-child(1) > header > div > div > div.Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.Header-information > div > span'
+    css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span'
     LoadingChecker = (By.CSS_SELECTOR, css)
     WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
     driver.find_element_by_css_selector(css).click()
@@ -77,20 +79,16 @@ for l in LOC:
             driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').click()
             break
     
-    # File name
+    # Set File name
     US_total_name = date_label + ' 15379_full_catalog_export.csv'#US
     CAN_total_name = date_label + ' 41910_full_catalog_export.csv'#CAN    
     time.sleep(30)
     
-    # Turn to Catalog page & Download My Catalog
-    css = 'body > div.wrapper > div:nth-child(1) > header > div > div > div.Nav > nav > a:nth-child(6) > span.Nav-topNavItem.hasChildren'
-    driver.find_element_by_css_selector(css).click()
-    time.sleep(30)
-    
-    for i in range(3):
+    # Click dropdown menus and download excel file
+    for i in range(5):
         try:
             LoadingChecker = (By.CSS_SELECTOR, 'button.ex-Button.ex-Button--text')
-            WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
+            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
             driver.find_element_by_css_selector('button.ex-Button.ex-Button--text').click()
             time.sleep(5)
             break
@@ -107,7 +105,7 @@ for l in LOC:
     driver.switch_to_window(window_after)
 
     for i in range(3):
-        for j in range(3):
+        for j in range(5):
             try:
                 # Sorting by Created Date
                 LoadingChecker = (By.CSS_SELECTOR, '.js-autogen-column:nth-child(4) .sorting')

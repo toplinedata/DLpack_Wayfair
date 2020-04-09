@@ -5,13 +5,15 @@ Created on Thu Aug 23 15:24:00 2018
 @author: User
 """
 from selenium import webdriver
-from selenium.webdriver.support.ui import Select
+from datetime import datetime
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import pandas as pd
 import time
 import os
+
+print(datetime.today().strftime("%Y%m%d"))
 
 try:
     #local
@@ -47,7 +49,6 @@ WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
 insert_act = driver.find_element_by_id('js-username').send_keys(WF_Account)
 insert_pwd = driver.find_element_by_id('password_field').send_keys(WF_Password)
 driver.find_element_by_xpath('//*[@id="login"]/button').click()
-time.sleep(10)
 
 # skip Wayfair system info.
 try:
@@ -59,11 +60,15 @@ try:
 except:
     pass
 
-#   Click select box to choose US or CAN
+price_download="https://partners.wayfair.com/v/supplier/pricing/app/index"
+driver.get(price_download)
+time.sleep(30)
+
 LOC ={'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
-driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
 for l in LOC:
-    css='body > div.wrapper > div:nth-child(1) > header > div > div > div.Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.Header-information > div > span'
+#   Click select box to choose US or CAN
+    driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
+    css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span'
     LoadingChecker = (By.CSS_SELECTOR, css)
     WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
     driver.find_element_by_css_selector(css).click()
@@ -72,10 +77,7 @@ for l in LOC:
             driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').click()
             break
     
-    time.sleep(10)
-    price_download="https://partners.wayfair.com/v/supplier/pricing/app/index"
-    driver.get(price_download)
-    
+    # Download excel file
     for i in range(3):
         try:
     #    Click "Search" Button

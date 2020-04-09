@@ -4,9 +4,11 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
+from datetime import datetime
 import shutil
 import os
+
+print(datetime.today().strftime("%Y%m%d"))
 
 # Today's date
 date_label = time.strftime('%Y%m%d')
@@ -49,7 +51,6 @@ WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
 driver.find_element_by_id('js-username').send_keys(username)
 driver.find_element_by_id('password_field').send_keys(password)
 driver.find_element_by_xpath('//*[@id="login"]/button').click()
-time.sleep(10)
 
 try:
     wfe_modal = 'body > div.wfe_modal.modal_transition_bottom.modal_transition_finish > div > span'
@@ -59,17 +60,16 @@ try:
 except:
     pass
 
-# Click select box to choose US or CAN
+# CastleGate Inbound Orders Management
+inbound_download = 'https://partners.wayfair.com/v/wfs/orders/castlegate_inbound/index'
+driver.get(inbound_download)
+time.sleep(30)
+    
 LOC = {'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
 for l in LOC:
+    # Click select box to choose US or CAN
     driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
-    
-    # CastleGate Inbound Orders Management
-    inbound_download = 'https://partners.wayfair.com/v/wfs/orders/castlegate_inbound/index'
-    driver.get(inbound_download)
-    
-    # Click dropdown menus and download excel file
-    css='body > div.wrapper > div:nth-child(1) > header > div > div > div.Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.Header-information > div > span'
+    css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span'
     LoadingChecker = (By.CSS_SELECTOR, css)
     WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
     driver.find_element_by_css_selector(css).click()
@@ -79,23 +79,19 @@ for l in LOC:
             break
     time.sleep(10)
     
-    # Download CSV
-    try:
-        css = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div.CastleGatePageContainer > div > main > div:nth-child(4) > div:nth-child(3) > div > div:nth-child(2) > div > div > p > button'
-        LoadingChecker = (By.CSS_SELECTOR, css)
-        WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
-        driver.find_element_by_css_selector(css).click()
-        time.sleep(120)
-        ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
-    except:
-        driver.refresh()
-        time.sleep(30)
-        css = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div.CastleGatePageContainer > div > main > div:nth-child(4) > div:nth-child(3) > div > div:nth-child(2) > div > div > p > button'
-        LoadingChecker = (By.CSS_SELECTOR, css)
-        WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
-        driver.find_element_by_css_selector(css).click()
-        time.sleep(120)
-        ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
+    # Click dropdown menus and download excel file
+    for i in range(3):
+        try:
+            css = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div.CastleGatePageContainer > div > main > div:nth-child(4) > div:nth-child(3) > div > div:nth-child(2) > div > div > p > button'
+            LoadingChecker = (By.CSS_SELECTOR, css)
+            WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_css_selector(css).click()
+            time.sleep(120)
+            ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
+            break
+        except:
+            driver.refresh()
+            time.sleep(30)
         
 # Turn to CG inbound page
         
