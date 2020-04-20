@@ -47,12 +47,13 @@ driver.get(WF_Extrant)
 
 LoadingChecker = (By.XPATH, '//*[@id="login"]/button')
 WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+
 # Input username and password and login
 driver.find_element_by_id('js-username').send_keys(username)
 driver.find_element_by_id('password_field').send_keys(password)
 driver.find_element_by_xpath('//*[@id="login"]/button').click()
 
-# skip Wayfair system info.
+#Skip Wayfair system info.
 try:
     wfe_modal = 'body > div.wfe_modal.modal_transition_bottom.modal_transition_finish > div > span'
     LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
@@ -61,23 +62,44 @@ try:
 except:
     pass
 
+# Turn to Catalog page
+for i in range(9):
+    try:
+        Catalog_Download = 'https://partners.wayfair.com//v/catalog/catalog_management/index'
+        driver.get(Catalog_Download)
+        time.sleep(30)
+        if driver.find_element_by_css_selector("body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > header > div.ex-PageContainer-titlebar > div > h1").text == "Product Management Dashboard":
+            break
+        else:
+             driver.refresh()
+             time.sleep(30)
+    except:
+        driver.refresh()
+        time.sleep(30)
+
 LOC = {'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
 for l in LOC:
-    # Turn to Catalog page & Download My Catalog
-    Catalog_Download = 'https://partners.wayfair.com//v/catalog/catalog_management/index'
-    driver.get(Catalog_Download)
-    time.sleep(30)
-
     # Click select box to choose US or CAN
     driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
-    css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span'
-    LoadingChecker = (By.CSS_SELECTOR, css)
-    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-    driver.find_element_by_css_selector(css).click()
-    for i in range(1,3):
-        if driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').text == LOC[l]:
-            driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').click()
+    count = 0
+    while 1==1:
+        try:
+            css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span.PH-HeaderDropdown-value'
+            LoadingChecker = (By.CSS_SELECTOR, css)
+            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_css_selector(css).click()
+            for i in range(1,3):
+                if driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').text == LOC[l]:
+                    driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').click()
+                    break
             break
+        except:
+            driver.refresh()
+            if count == 10:
+                print("over count")
+                break
+            count+=1
+            time.sleep(30)
     
     # Set File name
     US_total_name = date_label + ' 15379_full_catalog_export.csv'#US
@@ -96,10 +118,21 @@ for l in LOC:
             driver.refresh()
             time.sleep(60)
         
-    # Goto Download Center    
-    download_page = 'https://partners.wayfair.com/v/supplier/download_center/management/app'
-    driver.get(download_page)
-    time.sleep(10)
+    # Turn to download management center page
+    for i in range(9):
+        try:
+            download_page = 'https://partners.wayfair.com/v/supplier/download_center/management/app'
+            driver.get(download_page)
+            time.sleep(30)
+            if driver.find_element_by_css_selector("#app > div > div > div > h1").text == "Download Management Center":
+                break
+            else:
+                 driver.refresh()
+                 time.sleep(30)
+        except:
+            driver.refresh()
+            time.sleep(30)
+
     # Swith Window Handle
     window_after = driver.window_handles[-1]
     driver.switch_to_window(window_after)

@@ -60,24 +60,44 @@ try:
 except:
     pass
 
-# CastleGate Inbound Orders Management
-inbound_download = 'https://partners.wayfair.com/v/wfs/orders/castlegate_inbound/index'
-driver.get(inbound_download)
-time.sleep(30)
+# Turn to castleGate inbound orders page
+for i in range(9):
+    try:
+        inbound_download = 'https://partners.wayfair.com/v/wfs/orders/castlegate_inbound/index'
+        driver.get(inbound_download)
+        time.sleep(30)
+        if driver.find_element_by_css_selector("#utilitybar-title").text == "CastleGate Inbound Orders":
+            break
+        else:
+             driver.refresh()
+             time.sleep(30)
+    except:
+        driver.refresh()
+        time.sleep(30)
     
 LOC = {'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
 for l in LOC:
     # Click select box to choose US or CAN
     driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
-    css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span'
-    LoadingChecker = (By.CSS_SELECTOR, css)
-    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-    driver.find_element_by_css_selector(css).click()
-    for i in range(1,3):
-        if driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').text == LOC[l]:
-            driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').click()
+    count = 0
+    while 1==1:
+        try:
+            css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span.PH-HeaderDropdown-value'
+            LoadingChecker = (By.CSS_SELECTOR, css)
+            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_css_selector(css).click()
+            for i in range(1,3):
+                if driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').text == LOC[l]:
+                    driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').click()
+                    break
             break
-    time.sleep(10)
+        except:
+            driver.refresh()
+            if count == 10:
+                print("over count")
+                break
+            count+=1
+            time.sleep(30)
     
     # Click dropdown menus and download excel file
     for i in range(3):
@@ -122,8 +142,6 @@ for l in LOC:
 #        time.sleep(120)
 #        ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
     
-    time.sleep(10)
-
     # File name
     total_name = 'inbound_order' + date_label + '.csv' 
     if l =="US":
