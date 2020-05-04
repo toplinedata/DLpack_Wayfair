@@ -72,40 +72,37 @@ except:
 # switch to US
 LOC ={'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
 driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
-s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-s1.select_by_visible_text(LOC['US'])
-driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
+
+css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span.PH-HeaderDropdown-value'
+LoadingChecker = (By.CSS_SELECTOR, css)
+WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+driver.find_element_by_css_selector(css).click()
+for i in range(1,3):
+    if driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').text == LOC['US']:
+        driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').click()
+        break
 time.sleep(20)
 
 # Turn to Detail Report page
 driver.get(Download_page)
 time.sleep(20)
 
-try:
-    # Sort download event by date
-    LoadingChecker = (By.XPATH, '//*[@id="app"]/div[2]/div/div[1]/table/thead/tr/th[4]')
-    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-    driver.find_element_by_xpath( '//*[@id="app"]/div[2]/div/div[1]/table/thead/tr/th[4]').click()
-    time.sleep(5)
-    # Press Export button
-    LoadingChecker = (By.XPATH, '//*[@id="app"]/div[2]/div/div[1]/table/tbody/tr[1]/td[6]/div/button')
-    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-    driver.find_element_by_xpath( '//*[@id="app"]/div[2]/div/div[1]/table/tbody/tr[1]/td[6]/div/button').click()
-    time.sleep(20)
-except:
-    driver.refresh()
-    time.sleep(20)
-    # Sort download event by date
-    LoadingChecker = (By.XPATH, '//*[@id="app"]/div[2]/div/div[1]/table/thead/tr/th[4]')
-    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-    driver.find_element_by_xpath( '//*[@id="app"]/div[2]/div/div[1]/table/thead/tr/th[4]').click()
-    time.sleep(5)
-    # Press Export button
-    LoadingChecker = (By.XPATH, '//*[@id="app"]/div[2]/div/div[1]/table/tbody/tr[1]/td[6]/div/button')
-    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-    driver.find_element_by_xpath( '//*[@id="app"]/div[2]/div/div[1]/table/tbody/tr[1]/td[6]/div/button').click()
-    time.sleep(20)
+for i in range(3):
+    try:
+        # Sort download event by date
+        LoadingChecker = (By.CSS_SELECTOR, '#app > main > div > div > div:nth-child(1) > table > thead > tr > th:nth-child(4) > div')
+        WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+        driver.find_element_by_css_selector('#app > main > div > div > div:nth-child(1) > table > thead > tr > th:nth-child(4) > div').click()
+        time.sleep(5)
+        # Confirm Download Button is ready
+        if driver.find_element_by_css_selector('tbody .table_row .js-status').text == 'Complete':
+            driver.find_elements_by_css_selector('.js-document-download')[0].click()
+            time.sleep(60)
+        break
+    except:
+        driver.refresh()
+        time.sleep(20)
 
-driver.quit()
 ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
 shutil.move(Download_dir+ori_file, final_dir+Report_name)
+driver.quit()

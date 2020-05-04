@@ -48,11 +48,25 @@ driver.find_element_by_id('password_field').send_keys(password)
 driver.find_element_by_xpath('//*[@id="login"]/button').click()
 time.sleep(10)
 
+try:
+    wfe_modal = 'body > div.wfe_modal.modal_transition_bottom.modal_transition_finish > div > span'
+    LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
+    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+    driver.find_element_by_css_selector(wfe_modal).click()
+except:
+    pass
+
 # switch to US
 LOC ={'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
 driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
-s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-s1.select_by_visible_text(LOC['US'])
+css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span.PH-HeaderDropdown-value'
+LoadingChecker = (By.CSS_SELECTOR, css)
+WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+driver.find_element_by_css_selector(css).click()
+for i in range(1,3):
+    if driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').text == LOC['US']:
+        driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').click()
+        break
 driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
 time.sleep(20)
 
@@ -63,10 +77,19 @@ time.sleep(20)
 # select period 30days
 driver.find_element_by_class_name('ex-DropdownInput-valueContainer').click()
 driver.find_element_by_id('downshift-0-item-2').click()#30days
+
 # Press Apply Filters button
-driver.find_element_by_xpath('/html/body/div[2]/div[3]/div/div/div/main/div[3]/div[2]/button').click()
+css = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > main > div:nth-child(3) > div.ex-Grid-item.ex-Grid-item--flex.ex-Grid-item--row.u-alignSelfStart > button'
+LoadingChecker = (By.CSS_SELECTOR, css)
+WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+driver.find_element_by_css_selector(css).click()
+
 # Press Export button
-driver.find_element_by_xpath('/html/body/div[2]/div[3]/div/div/div/main/div[1]/aside/button').click()
+css= 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > main > div.ex-Box.ex-Block.ex-Block--display-flex.ex-Block--isFlex.ex-Block--flexWrap-wrap.ex-Block--justifyContent-space-between.ex-Block--display-flex > aside > button'
+LoadingChecker = (By.CSS_SELECTOR, css)
+WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+driver.find_element_by_css_selector(css).click()
+
 time.sleep(15)
 
 
