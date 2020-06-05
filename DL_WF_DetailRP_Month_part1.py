@@ -67,7 +67,6 @@ for i in range(1,3):
     if driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').text == LOC['US']:
         driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').click()
         break
-driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
 time.sleep(20)
 
 # Turn to Detail Report page

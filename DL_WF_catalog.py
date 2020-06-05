@@ -62,23 +62,25 @@ try:
 except:
     pass
 
-# Turn to Catalog page
-for i in range(9):
-    try:
-        Catalog_Download = 'https://partners.wayfair.com//v/catalog/catalog_management/index'
-        driver.get(Catalog_Download)
-        time.sleep(30)
-        if driver.find_element_by_css_selector("body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > header > div.ex-PageContainer-titlebar > div > h1").text == "Product Management Dashboard":
-            break
-        else:
-             driver.refresh()
-             time.sleep(30)
-    except:
-        driver.refresh()
-        time.sleep(30)
-
 LOC = {'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
 for l in LOC:
+    # Turn to Catalog page
+    for i in range(9):
+        try:
+            Catalog_Download = 'https://partners.wayfair.com//v/catalog/catalog_management/index'
+            driver.get(Catalog_Download)
+            time.sleep(30)
+            if driver.find_element_by_css_selector("body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > header > div.ex-PageContainer-titlebar > div > h1").text == "Product Management Dashboard":
+                break
+            else:
+                 print("can not turn to catalog page") 
+                 driver.refresh()
+                 time.sleep(30)
+        except:
+            print("no idea why can not turn to catalog page") 
+            driver.refresh()
+            time.sleep(30)
+
     # Click select box to choose US or CAN
     driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
     count = 0
@@ -94,6 +96,7 @@ for l in LOC:
                     break
             break
         except:
+            print("switch LOC fail")
             driver.refresh()
             if count == 10:
                 print("over count")
@@ -115,57 +118,69 @@ for l in LOC:
             time.sleep(5)
             break
         except:
+            print("can not dropdown menus and download") 
             driver.refresh()
             time.sleep(60)
         
-    # Turn to download management center page
-    for i in range(9):
-        try:
-            download_page = 'https://partners.wayfair.com/v/supplier/download_center/management/app'
-            driver.get(download_page)
-            time.sleep(30)
-            if driver.find_element_by_css_selector("#app > div > div > div > h1").text == "Download Management Center":
-                break
-            else:
-                 driver.refresh()
-                 time.sleep(30)
-        except:
-            driver.refresh()
-            time.sleep(30)
-
-    # Swith Window Handle
-    window_after = driver.window_handles[-1]
-    driver.switch_to_window(window_after)
-
-    for i in range(3):
-        for j in range(5):
+    for _ in range(9):
+        # Turn to download management center page
+        for i in range(9):
             try:
-                # Sorting by Created Date
-                LoadingChecker = (By.CSS_SELECTOR, '.js-autogen-column:nth-child(4) .sorting')
-                WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-                driver.find_element_by_css_selector('.js-autogen-column:nth-child(4) .sorting').click()
-                break
+                download_page = 'https://partners.wayfair.com/v/supplier/download_center/management/app'
+                driver.get(download_page)
+                time.sleep(30)
+                if driver.find_element_by_css_selector("#app > div > div > div > h1").text == "Download Management Center":
+                    break
+                else:
+                    print("can not turn to download page") 
+                    driver.refresh()
+                    time.sleep(30)
             except:
-                driver.refresh()
-
-        time.sleep(30)
-        # Confirm Download Button is ready
-        if driver.find_element_by_css_selector('tbody .table_row .js-status').text == 'Complete':
-            driver.find_elements_by_css_selector('.js-document-download')[0].click()
-            time.sleep(60)
-            
-            file_checker = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name]
-            # Confirm Download file is ready
-            if len(file_checker) != 0:
-                break
-            else:
+                print("no idea why can not turn to download page")
                 driver.refresh()
                 time.sleep(30)
-        else:
+    
+        # Swith Window Handle
+        window_after = driver.window_handles[-1]
+        driver.switch_to_window(window_after)
+    
+        for i in range(3):
+            for j in range(5):
+                try:
+                    # Sorting by Created Date
+                    LoadingChecker = (By.CSS_SELECTOR, '.js-autogen-column:nth-child(4) .sorting')
+                    WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+                    driver.find_element_by_css_selector('.js-autogen-column:nth-child(4) .sorting').click()
+                    break
+                except:
+                    print("can not sorting by created date")
+                    driver.refresh()
+    
+            time.sleep(60)
+            # Confirm Download Button is ready
+            if driver.find_element_by_css_selector('tbody .table_row .js-status').text == 'Complete':
+                driver.find_elements_by_css_selector('.js-document-download')[0].click()
+                time.sleep(60)
+                
+                file_checker = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name]
+                # Confirm Download file is ready
+                if len(file_checker) != 0:
+                    break
+                else:
+                    print("file_checker not ready")
+                    driver.refresh()
+                    time.sleep(30)
+            else:
+                print("download not complete")
+                driver.refresh()
+                time.sleep(60)
+        try:
+            ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
+            break
+        except:
+            print("ori_file not ready")
             driver.refresh()
             time.sleep(30)
-    
-    ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
     if l=="US":
         shutil.move(Download_dir + ori_file, final_Inv_dir + US_total_name)
     elif l=="CAN":

@@ -52,6 +52,7 @@ driver.find_element_by_id('js-username').send_keys(username)
 driver.find_element_by_id('password_field').send_keys(password)
 driver.find_element_by_xpath('//*[@id="login"]/button').click()
 
+# skip Wayfair system info.
 try:
     wfe_modal = 'body > div.wfe_modal.modal_transition_bottom.modal_transition_finish > div > span'
     LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
