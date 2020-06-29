@@ -96,16 +96,30 @@ for l in LOC:
     # Download excel file
     for i in range(3):
         try:
+    # Select Price Change Reason -> View Only
+            reason = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > main > div.ex-Box.ex-Block.ex-Box--mb-large.ex-Box--mt-small > div.ex-Box.ex-Block.ex-Box--mb-medium > div > div.ex-Grid-item.u-size4of12.ex-Grid-item--row > div > div > div.ex-DropdownInput-iconWrapper'
+            LoadingChecker = (By.CSS_SELECTOR, reason)
+            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_css_selector(reason).click()
+            
+            view_only = '#downshift-1-item-0'
+            LoadingChecker = (By.CSS_SELECTOR, view_only)
+            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_css_selector(view_only).click()
+            time.sleep(10)
+        
     #    Click "Search" Button
-            LoadingChecker = (By.CSS_SELECTOR, ".u-size1of12 .ex-Button--primary")
+            search = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > main > div.ex-Box.ex-Block.ex-Box--mb-large.ex-Box--mt-small > div:nth-child(2) > div.ex-Grid-item.u-size1of12.ex-Grid-item--row > span > button'        
+            LoadingChecker = (By.CSS_SELECTOR, search)
             WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
-            driver.find_element_by_css_selector(".u-size1of12 .ex-Button--primary").click()
+            driver.find_element_by_css_selector(search).click()
             time.sleep(10)
             
     #    Click "Export" Button
-            LoadingChecker = (By.CSS_SELECTOR, ".ex-Grid-item--row > .ex-Button--secondary")
+            export = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > main > div.ex-Box.ex-Block.ex-Box--mb-large.ex-Box--mt-small > div:nth-child(4) > div > div > div:nth-child(1) > button'
+            LoadingChecker = (By.CSS_SELECTOR, export)
             WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
-            driver.find_element_by_css_selector(".ex-Grid-item--row > .ex-Button--secondary").click()
+            driver.find_element_by_css_selector(export).click()
             time.sleep(60)
             break
         except:
