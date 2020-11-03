@@ -85,7 +85,7 @@ for l in LOC:
         try:
             css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span.PH-HeaderDropdown-value'
             LoadingChecker = (By.CSS_SELECTOR, css)
-            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+            WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
             driver.find_element_by_css_selector(css).click()
             for i in range(1,3):
                 if driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').text == LOC[l]:
@@ -103,10 +103,18 @@ for l in LOC:
     # Click dropdown menus and download excel file
     for i in range(3):
         try:
-            css = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div.CastleGatePageContainer > div > main > div:nth-child(4) > div:nth-child(3) > div > div:nth-child(2) > div > div > p > button'
+            # Click Downloads/Uploads
+            css = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div.CastleGatePageContainer > div > main > div:nth-child(4) > div:nth-child(3) > div > div > span > button'
             LoadingChecker = (By.CSS_SELECTOR, css)
             WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
             driver.find_element_by_css_selector(css).click()
+            
+            # Click Download All Orders
+            css = 'body > div:nth-child(30) > div > div > div > div:nth-child(1) > p > button'
+            LoadingChecker = (By.CSS_SELECTOR, css)
+            WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_css_selector(css).click()
+            
             time.sleep(120)
             ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
             break
