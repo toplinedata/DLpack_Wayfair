@@ -75,10 +75,12 @@ time.sleep(20)
 
 # select period 30days
 driver.find_element_by_class_name('ex-DropdownInput-valueContainer').click()
+driver.find_element_by_id('downshift-0-item-0').click()#Select a preset
+driver.find_element_by_class_name('ex-DropdownInput-valueContainer').click()
 driver.find_element_by_id('downshift-0-item-2').click()#30days
 
 # Press Apply Filters button
-css = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > main > div:nth-child(3) > div.ex-Grid-item.ex-Grid-item--flex.ex-Grid-item--row.u-alignSelfStart > button'
+css = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > main > div:nth-child(2) > span > form > fieldset:nth-child(2) > div > div:nth-child(7) > button'
 LoadingChecker = (By.CSS_SELECTOR, css)
 WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
 driver.find_element_by_css_selector(css).click()
