@@ -5,7 +5,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from datetime import datetime
-from pathlib import Path
 import shutil
 import os
 
@@ -50,104 +49,100 @@ driver.get(WF_Extrant)
 
 LoadingChecker = (By.XPATH, '//*[@id="login"]/button')
 WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+
 # Input username and password and login
 driver.find_element_by_id('js-username').send_keys(username)
 driver.find_element_by_id('password_field').send_keys(password)
 driver.find_element_by_xpath('//*[@id="login"]/button').click()
+time.sleep(30)
 
-# skip Wayfair system info.
+# Skip Wayfair system info.
 try:
-    wfe_modal = 'body > div.wfe_modal.modal_transition_bottom.modal_transition_finish > div > span'
+    iframe = driver.find_element_by_css_selector('body > div.appcues > appcues-container > iframe')
+    driver.switch_to_frame(iframe)
+
+    wfe_modal = 'body > appcues > div.appcues-skip > a'
     LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
     WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
     driver.find_element_by_css_selector(wfe_modal).click()
 except:
     pass
-
-# Turn to inventory page
-for i in range(9):
-    try:
-        Inventory_page = 'https://partners.wayfair.com/v/wfs/products/product/index'
-        driver.get(Inventory_page)
-        time.sleep(30)
-        if driver.find_element_by_css_selector("#utilitybar-title").text == "Inventory":
-            break
-        else:
-             driver.refresh()
-             time.sleep(30)
-    except:
-        driver.refresh()
-        time.sleep(30)
+driver.switch_to_default_content()
 
 LOC ={'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
 for l in LOC:
-    # Click select box to choose US or CAN
     driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
-    count = 0
-    while 1==1:
+    # Click select box to choose US or CAN
+    for i in range(3):
         try:
-            css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span.PH-HeaderDropdown-value'
-            LoadingChecker = (By.CSS_SELECTOR, css)
+            css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div'
+            LoadingChecker = (By.CSS_SELECTOR, css+' > span.ex-Box.ex-Block.ex-Block--display-flex.ex-Block--isFlex.ex-Block--flexWrap-wrap.ex-Block--alignItems-center.ex-Block--display-flex.ex-Box--ml-small')
             WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-            driver.find_element_by_css_selector(css).click()
-            for i in range(1,3):
-                if driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').text == LOC[l]:
-                    driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').click()
+            driver.find_element_by_css_selector(css+' > span.ex-Box.ex-Block.ex-Block--display-flex.ex-Block--isFlex.ex-Block--flexWrap-wrap.ex-Block--alignItems-center.ex-Block--display-flex.ex-Box--ml-small').click()
+            for j in range(1, 3):
+                box_text = driver.find_element_by_css_selector(css+'> span.PH-HeaderDropdown-value > ul > li:nth-child('+str(j)+') > button').text
+                if box_text == LOC[l]:
+                    driver.find_element_by_css_selector(css+'> span.PH-HeaderDropdown-value > ul > li:nth-child('+str(j)+') > button').click()
+                    time.sleep(30)
                     break
-            break
-        except:
-            driver.refresh()
-            if count == 10:
-                print("over count")
+            css = "body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span.PH-HeaderDropdown-value"
+            if driver.find_element_by_css_selector(css).text == box_text:
                 break
-            count+=1
+            else:
+                print("box not correct")
+        except:
+            print("switch LOC fail")
+            driver.refresh()
             time.sleep(30)
      
+    # Turn to inventory page
+    for i in range(3):
+        try:
+            Inventory_page = 'https://partners.wayfair.com/v/wfs/products/product/index'
+            driver.get(Inventory_page)
+            time.sleep(30)
+            # Skip Wayfair system info.
+            try:
+                iframe = driver.find_element_by_css_selector('body > div.appcues > appcues-container > iframe')
+                driver.switch_to_frame(iframe)
+                wfe_modal = 'body > appcues > div.appcues-skip > a'
+                LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
+                WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+                driver.find_element_by_css_selector(wfe_modal).click()
+            except:
+                pass
+            driver.switch_to_default_content()
+    
+            if driver.find_element_by_css_selector("#utilitybar-title").text == "Inventory":
+                break
+            else:
+                driver.refresh()
+                time.sleep(30)
+        except:
+            print("Can't turn to inventory page")
+    
     # Set File name
     total_name = 'inventory WH' + date_label + '.csv'
-    
+        
     # Click dropdown menus and download excel file
     for i in range(3):
         try:
             css = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div.CastleGatePageContainer > div > main > div.ex-Grid.ex-Grid--withGutter.ex-Grid--row > div.ex-Grid-item.u-size3of12.ex-Grid-item--row > div > button'
             LoadingChecker = (By.CSS_SELECTOR, css)
-            WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
+            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
             driver.find_element_by_css_selector(css).click()
-            time.sleep(90)
+            time.sleep(60)
             ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
             break
-
         except:
+            print("Can't download excel file")
             driver.refresh()
             time.sleep(30)
-
+    
     if l == "US":
-        if not Path(final_Inv_dir + total_name).exists():
-            shutil.move(Download_dir + ori_file, final_Inv_dir + total_name)
-        else:
-            os.remove(Download_dir + ori_file)
+        shutil.move(Download_dir + ori_file, final_Inv_dir + total_name)
     elif l == "CAN":
-        if not Path(CAN_final_Inv_dir + total_name).exists():
-            shutil.move(Download_dir + ori_file, CAN_final_Inv_dir + total_name)
-        else:
-            os.remove(Download_dir + ori_file)
+        shutil.move(Download_dir + ori_file, CAN_final_Inv_dir + total_name)
     time.sleep(10)
-
-#GO back to US
-# try:
-#     s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-#     s1.select_by_visible_text(LOC['US'])
-#     WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-#     driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-#     time.sleep(20)
-# except:
-#     driver.refresh()
-#     time.sleep(60)
-#     s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-#     s1.select_by_visible_text(LOC['US'])
-#     LoadingChecker = (By.ID, 'switchsupplier')
-#     WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-#     driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-#     time.sleep(20)
 
 driver.quit() 

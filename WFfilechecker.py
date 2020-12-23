@@ -4,8 +4,15 @@ Created on Mon Nov 25 14:12:25 2019
 
 @author: User
 """
-import os
 import time
+import pandas as pd
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from datetime import datetime
+import shutil
+import os
 
 # local
 try:
@@ -25,6 +32,9 @@ try:
     CAN_final_Inv_dir_inboundPO = 'C:\\Users\\User\\Desktop\\0047Automate_Script\\DLpack_Wayfair\\'
     # DL_WF_pricingupdate.py
     final_Inv_dir_pricingupdate = 'C:\\Users\\User\\Desktop\\0047Automate_Script\\DLpack_Wayfair\\'
+    # DL_WF_Shipments.py
+    final_Inv_dir_Shipments = 'C:\\Users\\User\\Desktop\\0047Automate_Script\\DLpack_Wayfair\\'
+    CAN_final_Inv_dir_Shipments = 'C:\\Users\\User\\Desktop\\0047Automate_Script\\DLpack_Wayfair\\'
     
 # 0047
 except:    
@@ -44,6 +54,10 @@ except:
     CAN_final_Inv_dir_inboundPO = 'N:\\E Commerce\\Public Share\\Dot Com - Wayfair\\CG CAN Inbound PO\\'
     # DL_WF_pricingupdate.py
     final_Inv_dir_pricingupdate = 'N:\\E Commerce\\Public Share\\Dot Com - Wayfair\\WF Pricing Updates\\'
+    # DL_WF_Shipments.py
+    final_Inv_dir_Shipments = 'N:\\E Commerce\\Public Share\\Dot Com - Wayfair\\CG Daily AC Data\\'
+    CAN_final_Inv_dir_Shipments = 'N:\\E Commerce\\Public Share\\Dot Com - Wayfair\\CG CAN Daily AC Data\\'
+
     
 ### Check download file for WF daily download script
 while 1==1:
@@ -108,5 +122,22 @@ while 1==1:
         else:
             print("Done.")
             break
-    if count >= 8:
+        
+    # DL_WF_Shipments.py
+    for i in range(3):
+        count = 8
+        file_list=list(os.listdir(final_Inv_dir_Shipments)+os.listdir(CAN_final_Inv_dir_Shipments))
+        for file in file_list:
+            if date_label1+' AC_Shipments_CSV_Topline.csv' in file:
+                count+=1
+                print(count, file)
+            elif date_label1+' AC_Shipments_CSV_41910.csv' in file:
+                count+=1
+                print(count, file)
+        if count < 10:
+            os.system("python "+script_dir+"DL_WF_Shipments.py")
+        else:
+            break
+        
+    if count >= 10:
         break

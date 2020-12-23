@@ -47,129 +47,150 @@ driver.get(WF_Extrant)
 
 LoadingChecker = (By.XPATH, '//*[@id="login"]/button')
 WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
+
 # Input username and password and login
 driver.find_element_by_id('js-username').send_keys(username)
 driver.find_element_by_id('password_field').send_keys(password)
 driver.find_element_by_xpath('//*[@id="login"]/button').click()
+time.sleep(30)
 
-# skip Wayfair system info.
+# Skip Wayfair system info.
 try:
-    wfe_modal = 'body > div.wfe_modal.modal_transition_bottom.modal_transition_finish > div > span'
+    iframe = driver.find_element_by_css_selector('body > div.appcues > appcues-container > iframe')
+    driver.switch_to_frame(iframe)
+
+    wfe_modal = 'body > appcues > div.appcues-skip > a'
     LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
     WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
     driver.find_element_by_css_selector(wfe_modal).click()
 except:
     pass
+driver.switch_to_default_content()
 
 # Turn to castleGate inbound orders page
-for i in range(9):
+for i in range(3):
     try:
         inbound_download = 'https://partners.wayfair.com/v/wfs/orders/castlegate_inbound/index'
         driver.get(inbound_download)
         time.sleep(30)
+        # Skip Wayfair system info.
+        try:
+            iframe = driver.find_element_by_css_selector('body > div.appcues > appcues-container > iframe')
+            driver.switch_to_frame(iframe)
+        
+            wfe_modal = 'body > appcues > div.appcues-skip > a'
+            LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
+            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_css_selector(wfe_modal).click()
+        except:
+            pass
+        driver.switch_to_default_content()
+        
         if driver.find_element_by_css_selector("#utilitybar-title").text == "CastleGate Inbound Orders":
             break
         else:
-             driver.refresh()
-             time.sleep(30)
+            driver.refresh()
+            time.sleep(30)
     except:
-        driver.refresh()
-        time.sleep(30)
+        print("Can't turn to inbound orders page")
     
 LOC = {'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
 for l in LOC:
     # Click select box to choose US or CAN
     driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
-    count = 0
-    while 1==1:
+
+    for i in range(3):
         try:
-            css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span.PH-HeaderDropdown-value'
-            LoadingChecker = (By.CSS_SELECTOR, css)
-            WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
-            driver.find_element_by_css_selector(css).click()
-            for i in range(1,3):
-                if driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').text == LOC[l]:
-                    driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').click()
+            css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div'
+            LoadingChecker = (By.CSS_SELECTOR, css+' > span.ex-Box.ex-Block.ex-Block--display-flex.ex-Block--isFlex.ex-Block--flexWrap-wrap.ex-Block--alignItems-center.ex-Block--display-flex.ex-Box--ml-small')
+            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_css_selector(css+' > span.ex-Box.ex-Block.ex-Block--display-flex.ex-Block--isFlex.ex-Block--flexWrap-wrap.ex-Block--alignItems-center.ex-Block--display-flex.ex-Box--ml-small').click()
+            for j in range(1, 3):
+                box_text = driver.find_element_by_css_selector(css+'> span.PH-HeaderDropdown-value > ul > li:nth-child('+str(j)+') > button').text
+                if box_text == LOC[l]:
+                    driver.find_element_by_css_selector(css+'> span.PH-HeaderDropdown-value > ul > li:nth-child('+str(j)+') > button').click()
+                    time.sleep(30)
                     break
-            break
-        except:
-            driver.refresh()
-            if count == 10:
-                print("over count")
+            css = "body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span.PH-HeaderDropdown-value"
+            if driver.find_element_by_css_selector(css).text == box_text:
                 break
-            count+=1
+            else:
+                print("box not correct")
+        except:
+            print("select box fail")
+            driver.refresh()
             time.sleep(30)
+            # Skip Wayfair system info.
+            try:
+                iframe = driver.find_element_by_css_selector('body > div.appcues > appcues-container > iframe')
+                driver.switch_to_frame(iframe)
+            
+                wfe_modal = 'body > appcues > div.appcues-skip > a'
+                LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
+                WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+                driver.find_element_by_css_selector(wfe_modal).click()
+            except:
+                pass
+            driver.switch_to_default_content()
+
+    # Skip Wayfair system info.
+    try:
+        iframe = driver.find_element_by_css_selector('body > div.appcues > appcues-container > iframe')
+        driver.switch_to_frame(iframe)
     
+        wfe_modal = 'body > appcues > div.appcues-skip > a'
+        LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
+        WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+        driver.find_element_by_css_selector(wfe_modal).click()
+    except:
+        pass
+    driver.switch_to_default_content()
+        
     # Click dropdown menus and download excel file
     for i in range(3):
         try:
             # Click Downloads/Uploads
-            css = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div.CastleGatePageContainer > div > main > div:nth-child(4) > div:nth-child(3) > div > div > span > button'
+            css = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div.CastleGatePageContainer > div > main > div:nth-child(4) > div:nth-child(3) > div.ex-Box.ex-Block.ex-Block--display-flex.ex-Block--isFlex.ex-Block--flexDirection-column.ex-Block--flexWrap-wrap.ex-Block--justifyContent-center.ex-Block--display-flex.ex-Box--mb-medium.ex-Box--mt-large > div > span > button'
             LoadingChecker = (By.CSS_SELECTOR, css)
             WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
             driver.find_element_by_css_selector(css).click()
+            time.sleep(5)
             
             # Click Download All Orders
-            css = 'body > div:nth-child(30) > div > div > div > div:nth-child(1) > p > button'
-            LoadingChecker = (By.CSS_SELECTOR, css)
-            WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
-            driver.find_element_by_css_selector(css).click()
+            for j in range(5):
+                css = 'body > div:nth-child('+str(28+j)+') > div.ex-BasePopup.ex-BaseTooltip.ex-BasePopup--bottom > div.ex-BaseTooltip-inner > div > div:nth-child(1) > p > button'
+                try:
+                    if driver.find_element_by_css_selector(css).text == "Download All Orders":
+                        driver.find_element_by_css_selector(css).click()
+                except:
+                    pass
             
             time.sleep(120)
             ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
+
+            # move file 
+            total_name = 'inbound_order' + date_label + '.csv' 
+            if l =="US":
+                shutil.move(Download_dir + ori_file, final_Inv_dir + total_name)
+            elif l=="CAN":
+                shutil.move(Download_dir + ori_file, CAN_final_Inv_dir + total_name)
+
             break
         except:
             driver.refresh()
+            print("download fail")
             time.sleep(30)
+            # Skip Wayfair system info.
+            try:
+                iframe = driver.find_element_by_css_selector('body > div.appcues > appcues-container > iframe')
+                driver.switch_to_frame(iframe)
+            
+                wfe_modal = 'body > appcues > div.appcues-skip > a'
+                LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
+                WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+                driver.find_element_by_css_selector(wfe_modal).click()
+            except:
+                pass
+            driver.switch_to_default_content()
         
-# Turn to CG inbound page
-        
-    # CastleGate
-#    LoadingChecker = (By.CSS_SELECTOR, '#wfs_management > span')
-#    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-#    driver.find_element_by_css_selector('#wfs_management > span').click()
-#    time.sleep(5)
-    # Inbound Orders
-#    LoadingChecker = (By.CSS_SELECTOR, '#js-inbound-order > a')
-#    WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-#    driver.find_element_by_css_selector('#js-inbound-order > a').click()
-#    time.sleep(10)
-                                        
-    # Download CSV
-#    try:
-#        LoadingChecker = (By.XPATH, '/html/body/div[2]/div[4]/div/div/div[2]/div/main/div[2]/div[2]/div/div/p/button')
-#        WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
-#        driver.find_element_by_xpath('/html/body/div[2]/div[4]/div/div/div[2]/div/main/div[2]/div[2]/div/div/p/button').click()
-#        time.sleep(120)
-#        ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
-#    except:
-#        driver.refresh()
-#        time.sleep(30)
-#        LoadingChecker = (By.XPATH, '/html/body/div[2]/div[4]/div/div/div[2]/div/main/div[2]/div[2]/div/div/p/button')
-#        WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
-#        driver.find_element_by_xpath('/html/body/div[2]/div[4]/div/div/div[2]/div/main/div[2]/div[2]/div/div/p/button').click()
-#        time.sleep(120)
-#        ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
-    
-    # File name
-    total_name = 'inbound_order' + date_label + '.csv' 
-    if l =="US":
-        shutil.move(Download_dir + ori_file, final_Inv_dir + total_name)
-    elif l=="CAN":
-        shutil.move(Download_dir + ori_file, CAN_final_Inv_dir + total_name)
-
-# GO back to US
-# try:
-#     s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-#     s1.select_by_visible_text(LOC['US'])
-#     driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-#     time.sleep(20)
-# except:
-#     driver.refresh()
-#     time.sleep(30)
-#     s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-#     s1.select_by_visible_text(LOC['US'])
-#     driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-#     time.sleep(20)
-
 driver.quit() 

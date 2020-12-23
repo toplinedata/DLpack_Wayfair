@@ -52,156 +52,200 @@ WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
 driver.find_element_by_id('js-username').send_keys(username)
 driver.find_element_by_id('password_field').send_keys(password)
 driver.find_element_by_xpath('//*[@id="login"]/button').click()
-
-#Skip Wayfair system info.
+time.sleep(30)
+# Skip Wayfair system info.
 try:
-    wfe_modal = 'body > div.wfe_modal.modal_transition_bottom.modal_transition_finish > div > span'
+    iframe = driver.find_element_by_css_selector('body > div.appcues > appcues-container > iframe')
+    driver.switch_to_frame(iframe)
+
+    wfe_modal = 'body > appcues > div.appcues-skip > a'
     LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
     WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
     driver.find_element_by_css_selector(wfe_modal).click()
 except:
     pass
+driver.switch_to_default_content()
 
 LOC = {'US':'Topline Furniture Warehouse Corp.', 'CAN':'CAN_Topline Furniture Warehouse Corp.'}
 for l in LOC:
-    # Turn to Catalog page
-    for i in range(9):
+    driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
+    # Click select box to choose US or CAN
+    for i in range(3):
         try:
-            Catalog_Download = 'https://partners.wayfair.com//v/catalog/catalog_management/index'
-            driver.get(Catalog_Download)
-            time.sleep(30)
-            if driver.find_element_by_css_selector("body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > header > div.ex-PageContainer-titlebar > div > h1").text == "Product Management Dashboard":
+            css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div'
+            LoadingChecker = (By.CSS_SELECTOR, css+' > span.ex-Box.ex-Block.ex-Block--display-flex.ex-Block--isFlex.ex-Block--flexWrap-wrap.ex-Block--alignItems-center.ex-Block--display-flex.ex-Box--ml-small')
+            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_css_selector(css+' > span.ex-Box.ex-Block.ex-Block--display-flex.ex-Block--isFlex.ex-Block--flexWrap-wrap.ex-Block--alignItems-center.ex-Block--display-flex.ex-Box--ml-small').click()
+            for j in range(1, 3):
+                box_text = driver.find_element_by_css_selector(css+'> span.PH-HeaderDropdown-value > ul > li:nth-child('+str(j)+') > button').text
+                if box_text == LOC[l]:
+                    driver.find_element_by_css_selector(css+'> span.PH-HeaderDropdown-value > ul > li:nth-child('+str(j)+') > button').click()
+                    time.sleep(30)
+                    break
+            css = "body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span.PH-HeaderDropdown-value"
+            if driver.find_element_by_css_selector(css).text == box_text:
                 break
             else:
-                 print("can not turn to catalog page") 
-                 driver.refresh()
-                 time.sleep(30)
-        except:
-            print("no idea why can not turn to catalog page") 
-            driver.refresh()
-            time.sleep(30)
-
-    # Click select box to choose US or CAN
-    driver.execute_script("window.scrollTo(document.body.scrollWidth, 0);")
-    count = 0
-    while 1==1:
-        try:
-            css='body > div.wrapper > div:nth-child(1) > header > div > div > div.PH-Header > div > div.ex-Grid-item.ex-Grid-item--flex.u-flexShrink.ex-Grid-item--column.u-justifyEnd > div > div.PH-Header-information > div > span.PH-HeaderDropdown-value'
-            LoadingChecker = (By.CSS_SELECTOR, css)
-            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-            driver.find_element_by_css_selector(css).click()
-            for i in range(1,3):
-                if driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').text == LOC[l]:
-                    driver.find_element_by_css_selector(css+'> ul > li:nth-child('+str(i)+') > button').click()
-                    break
-            break
+                print("box not correct")
         except:
             print("switch LOC fail")
             driver.refresh()
-            if count == 10:
-                print("over count")
-                break
-            count+=1
             time.sleep(30)
     
-    # Set File name
-    US_total_name = date_label + ' 15379_full_catalog_export.csv'#US
-    CAN_total_name = date_label + ' 41910_full_catalog_export.csv'#CAN    
-    time.sleep(30)
-    
-    # Click dropdown menus and download excel file
-    for i in range(5):
-        try:
-            LoadingChecker = (By.CSS_SELECTOR, 'button.ex-Button.ex-Button--text')
-            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
-            driver.find_element_by_css_selector('button.ex-Button.ex-Button--text').click()
-            time.sleep(5)
-            break
-        except:
-            print("can not dropdown menus and download") 
-            driver.refresh()
-            time.sleep(60)
-        
-    for _ in range(9):
-        # Turn to download management center page
-        for i in range(9):
+    for i in range(3):
+        # Turn to Catalog page
+        for j in range(3):
+            Catalog_Download = 'https://partners.wayfair.com//v/catalog/catalog_management/index'
+            driver.get(Catalog_Download)
+            time.sleep(30)
+                
+            # Skip Wayfair system info.
             try:
-                download_page = 'https://partners.wayfair.com/v/supplier/download_center/management/app'
-                driver.get(download_page)
-                time.sleep(30)
-                if driver.find_element_by_css_selector("#app > div > div > div > h1").text == "Download Management Center":
-                    break
-                else:
-                    print("can not turn to download page") 
-                    driver.refresh()
-                    time.sleep(30)
+                iframe = driver.find_element_by_css_selector('body > div.appcues > appcues-container > iframe')
+                driver.switch_to_frame(iframe)
+
+                wfe_modal = 'body > appcues > div.appcues-skip > a'
+                LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
+                WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+                driver.find_element_by_css_selector(wfe_modal).click()
             except:
-                print("no idea why can not turn to download page")
+                pass
+            driver.switch_to_default_content()
+
+            ProductManagementDashborad = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > header > div.BaseBox-sc-16uwbyc-0.jnYHRu > div > h1 > div > div.ex-Grid-item.ex-Grid-item--flex.ex-Grid-item--row'
+            if driver.find_element_by_css_selector(ProductManagementDashborad).text == "Product Management Dashboard":
+                break
+            else:
+                print("can't turn to catalog page")
+
+        # Click dropdown menus and download excel file
+        for j in range(3):
+            try:
+                LoadingChecker = (By.CSS_SELECTOR, 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > main > div > div.ex-Grid-item.u-size3of12.ex-Grid-item--row > div > div > div > div:nth-child(6) > button')
+                WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+                driver.find_element_by_css_selector('body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > main > div > div.ex-Grid-item.u-size3of12.ex-Grid-item--row > div > div > div > div:nth-child(6) > button').click()
+                time.sleep(5)
+                break
+            except:
+                print("can't dropdown menus and download") 
                 driver.refresh()
-                time.sleep(30)
+                time.sleep(60)
+        
+        # Turn to download management center page
+        for j in range(3):
+            download_page = 'https://partners.wayfair.com/v/supplier/download_center/management/app'
+            driver.get(download_page)
+            time.sleep(30)
+                
+            #Skip Wayfair system info.
+            try:
+                iframe = driver.find_element_by_css_selector('body > div.appcues > appcues-container > iframe')
+                driver.switch_to_frame(iframe)
+                
+                wfe_modal = 'body > appcues > div.appcues-skip > a'
+                LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
+                WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+                driver.find_element_by_css_selector(wfe_modal).click()
+            except:
+                pass
+            driver.switch_to_default_content()
+
+            # Confrom Download Center Status
+            DownloadManagementCenter = 'body > div.wrapper > div.body.wfe_content_wrap.js-wfe-content-wrap > div > div > div > div > div > div > h1'
+            if driver.find_element_by_css_selector(DownloadManagementCenter).text == "Download Management Center":
+                break
+            else:
+                print("can't turn to download management center page")
     
         # Swith Window Handle
         window_after = driver.window_handles[-1]
         driver.switch_to_window(window_after)
     
-        for i in range(3):
-            for j in range(5):
-                try:
-                    # Sorting by Created Date
-                    LoadingChecker = (By.CSS_SELECTOR, '.js-autogen-column:nth-child(4) .sorting')
-                    WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-                    driver.find_element_by_css_selector('.js-autogen-column:nth-child(4) .sorting').click()
-                    break
-                except:
-                    print("can not sorting by created date")
-                    driver.refresh()
-    
-            time.sleep(60)
-            # Confirm Download Button is ready
-            if driver.find_element_by_css_selector('tbody .table_row .js-status').text == 'Complete':
-                driver.find_elements_by_css_selector('.js-document-download')[0].click()
-                time.sleep(60)
-                
-                file_checker = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name]
-                # Confirm Download file is ready
-                if len(file_checker) != 0:
-                    break
+        # Sorting by Created Date and download file
+        for j in range(3):
+        # Sorting by Created Date
+            try:
+                LoadingChecker = (By.CSS_SELECTOR, '.js-autogen-column:nth-child(4) .sorting')
+                WebDriverWait(driver, 60).until(EC.presence_of_element_located(LoadingChecker))
+                driver.find_element_by_css_selector('.js-autogen-column:nth-child(4) .sorting').click()
+                time.sleep(20)
+                    
+                # Confirm Download Button status
+                if driver.find_element_by_css_selector('tbody .table_row .table_data_cell:nth-child(5)').text == 'Complete' and \
+                driver.find_element_by_css_selector('tbody .table_row .table_data_cell:nth-child(2)').text == 'Catalog Export':
+                    # Confirm Sorting Date status
+                    time1 = driver.find_element_by_css_selector('tbody > tr:nth-child(1) > td:nth-child(4)').text
+                    time2 = driver.find_element_by_css_selector('tbody > tr:nth-child(2) > td:nth-child(4)').text
+                    if datetime(int(time1[6:10]), int(time1[0:2]), int(time1[3:5]), int(time1[11:13]), int(time1[14:16]), int(time1[17:19])) > \
+                    datetime(int(time2[6:10]), int(time2[0:2]), int(time2[3:5]), int(time2[11:13]), int(time2[14:16]), int(time2[17:19])):
+                        driver.find_elements_by_css_selector('.js-document-download')[0].click()
+                        time.sleep(30)
+                        break
+                    else:
+                        print("sorting by created date not ready")
+                        driver.refresh()
+                        time.sleep(30)
                 else:
-                    print("file_checker not ready")
+                    print("download Button not ready")
                     driver.refresh()
-                    time.sleep(30)
-            else:
-                print("download not complete")
+                    time.sleep(60)
+            except:
+                print("can't sorting by created date")
                 driver.refresh()
-                time.sleep(60)
+                time.sleep(30)
+    
+            #Skip Wayfair system info.
+            try:
+                iframe = driver.find_element_by_css_selector('body > div.appcues > appcues-container > iframe')
+                driver.switch_to_frame(iframe)
+                
+                wfe_modal = 'body > appcues > div.appcues-skip > a'
+                LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
+                WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+                driver.find_element_by_css_selector(wfe_modal).click()
+            except:
+                pass
+            driver.switch_to_default_content()
+    
+        # Check download action
         try:
             ori_file = [Inv_name for Inv_name in os.listdir(Download_dir) if '.csv' in Inv_name][0]
-            break
+            if l == "US" and "Catalog_Export_Topline" in ori_file:
+                break
+            elif l == "CAN" and "Catalog_Export_41910" in ori_file:
+                break
+            else:
+                os.remove(Download_dir+ori_file)
+                print("file not correct")
+                driver.refresh()
+                time.sleep(30)
         except:
-            print("ori_file not ready")
+            print("file download fail")
             driver.refresh()
             time.sleep(30)
-    if l=="US":
+                           
+        #Skip Wayfair system info.
+        try:
+            iframe = driver.find_element_by_css_selector('body > div.appcues > appcues-container > iframe')
+            driver.switch_to_frame(iframe)
+            
+            wfe_modal = 'body > appcues > div.appcues-skip > a'
+            LoadingChecker = (By.CSS_SELECTOR, wfe_modal)
+            WebDriverWait(driver, 30).until(EC.presence_of_element_located(LoadingChecker))
+            driver.find_element_by_css_selector(wfe_modal).click()
+        except:
+            pass
+        driver.switch_to_default_content()
+                
+    # Set File name
+    US_total_name = date_label + ' 15379_full_catalog_export.csv'#US
+    CAN_total_name = date_label + ' 41910_full_catalog_export.csv'#CAN    
+        
+    if l == "US":
         shutil.move(Download_dir + ori_file, final_Inv_dir + US_total_name)
-    elif l=="CAN":
+        print("US catalog export file is ready")
+    elif l == "CAN":
         shutil.move(Download_dir + ori_file, CAN_final_Inv_dir + CAN_total_name)
-
-#GO back to US
-# try:
-#     s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-#     s1.select_by_visible_text(LOC['US'])
-#     LoadingChecker = (By.ID, 'switchsupplier')
-#     WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-#     driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-#     time.sleep(20)
-# except:
-#     driver.refresh()
-#     time.sleep(60)
-#     s1 = Select(driver.find_element_by_id('switchsupplier').find_element_by_name('switchsupplier'))
-#     s1.select_by_visible_text(LOC['US'])
-#     LoadingChecker = (By.ID, 'switchsupplier')
-#     WebDriverWait(driver, 120).until(EC.presence_of_element_located(LoadingChecker))
-#     driver.find_element_by_id('switchsupplier').find_element_by_name('changeSupplier').click()
-#     time.sleep(20)
+        print("CAN catalog export file is ready")
 
 driver.quit()
