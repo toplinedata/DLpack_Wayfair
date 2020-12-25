@@ -5,14 +5,8 @@ Created on Mon Nov 25 14:12:25 2019
 @author: User
 """
 import time
-import pandas as pd
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from datetime import datetime
-import shutil
 import os
+import subprocess
 
 # local
 try:
@@ -25,8 +19,8 @@ try:
     final_Inv_dir_catalog = 'C:\\Users\\User\\Desktop\\0047Automate_Script\\DLpack_Wayfair\\'
     CAN_final_Inv_dir_catalog = 'C:\\Users\\User\\Desktop\\0047Automate_Script\\DLpack_Wayfair\\'
     # DL_WF_dailyInv.py
-    final_Inv_dir_dailyInv = 'C:\\Users\\User\\Desktop\\0047Automate_Script\\DLpack_Wayfair\\CG daily Inventory\\'
-    CAN_final_Inv_dir_dailyInv = 'C:\\Users\\User\\Desktop\\0047Automate_Script\\DLpack_Wayfair\\CG CAN daily Inventory\\'
+    final_Inv_dir_dailyInv = 'C:\\Users\\User\\Desktop\\0047Automate_Script\\DLpack_Wayfair\\'
+    CAN_final_Inv_dir_dailyInv = 'C:\\Users\\User\\Desktop\\0047Automate_Script\\DLpack_Wayfair\\'
     # DL_WF_inboundPO.py
     final_Inv_dir_inboundPO = 'C:\\Users\\User\\Desktop\\0047Automate_Script\\DLpack_Wayfair\\'
     CAN_final_Inv_dir_inboundPO = 'C:\\Users\\User\\Desktop\\0047Automate_Script\\DLpack_Wayfair\\'
@@ -60,9 +54,13 @@ except:
 
     
 ### Check download file for WF daily download script
+    
+date_label1 = time.strftime('%Y.%m.%d')
+date_label2 = time.strftime('%Y%m%d')
+date_label3 = time.strftime('%Y_%m_%d')
+
 while 1==1:
     # DL_WF_catalog.py
-    date_label1 = time.strftime('%Y.%m.%d')
     for i in range(3):
         count = 0
         file_list=list(os.listdir(final_Inv_dir_catalog)+os.listdir(CAN_final_Inv_dir_catalog))
@@ -74,12 +72,11 @@ while 1==1:
                 count+=1
                 print(count, file)
         if count < 2:
-            os.system("python "+script_dir+"DL_WF_catalog.py")
+            subprocess.call("python "+script_dir+"DL_WF_catalog.py")
         else:
             break
         
     # DL_WF_dailyInv.py
-    date_label2 = time.strftime('%Y%m%d')
     for i in range(3):
         count = 2
         file_list=list(os.listdir(final_Inv_dir_dailyInv)+os.listdir(CAN_final_Inv_dir_dailyInv))
@@ -88,7 +85,7 @@ while 1==1:
                 count+=1
                 print(count, file)
         if count < 4:
-            os.system("python "+script_dir+"DL_WF_dailyInv.py")
+            subprocess.call("python "+script_dir+"DL_WF_dailyInv.py")
         else:
             break
 
@@ -101,12 +98,11 @@ while 1==1:
                 count+=1
                 print(count, file)
         if count < 6:
-            os.system("python "+script_dir+"DL_WF_inboundPO.py")
+            subprocess.call("python "+script_dir+"DL_WF_inboundPO.py")
         else:
             break
     
     # WFPricingUpdates.py
-    date_label3 = time.strftime('%Y_%m_%d')
     for i in range(3):
         count = 6
         file_list=list(set(os.listdir(final_Inv_dir_pricingupdate)))
@@ -118,9 +114,8 @@ while 1==1:
             for file in file_list:
                 if  'Topline Furniture Warehouse Corp._'+date_label3 in file:
                     os.remove(final_Inv_dir_pricingupdate+file)
-            os.system("python "+script_dir+"WFPricingUpdates.py")
+            subprocess.call("python "+script_dir+"WFPricingUpdates.py")
         else:
-            print("Done.")
             break
         
     # DL_WF_Shipments.py
@@ -135,9 +130,11 @@ while 1==1:
                 count+=1
                 print(count, file)
         if count < 10:
-            os.system("python "+script_dir+"DL_WF_Shipments.py")
+            subprocess.call("python "+script_dir+"DL_WF_Shipments.py")
         else:
             break
         
     if count >= 10:
+        print("Done.")
+        time.sleep(5)
         break
